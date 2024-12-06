@@ -10,14 +10,11 @@ const Button = ({ text, onClick }) => {
 
 const Feedback = ({ onGoodFeedback, onBadFeedback, onNeutralFeedback }) => {
   return (
-    <>
-      <Title text="give feedback" />
-      <div>
-        <Button text="good" onClick={onGoodFeedback} />
-        <Button text="neutral" onClick={onNeutralFeedback} />
-        <Button text="bad" onClick={onBadFeedback} />
-      </div>
-    </>
+    <div>
+      <Button text="good" onClick={onGoodFeedback} />
+      <Button text="neutral" onClick={onNeutralFeedback} />
+      <Button text="bad" onClick={onBadFeedback} />
+    </div>
   );
 };
 
@@ -28,29 +25,41 @@ const Statistics = ({ good, bad, neutral }) => {
   if (!good && !bad && !neutral) {
     return (
       <>
-        <Title text="statistics" />
         <p>No feedback given</p>
       </>
     );
   }
   return (
-    <>
-      <Title text="statistics" />
-      <Stat text="good" value={good} />
-      <Stat text="neutral" value={neutral} />
-      <Stat text="bad" value={bad} />
-      <Stat text="all" value={all} />
-      <Stat text="average" value={average} />
-      <Stat text="positive" value={positive} />
-    </>
+    <table>
+      <tbody>
+        <tr>
+          <StatisticLine text="good" value={good} />
+        </tr>
+        <tr>
+          <StatisticLine text="neutral" value={neutral} />
+        </tr>
+        <tr>
+          <StatisticLine text="bad" value={bad} />
+        </tr>
+        <tr>
+          <StatisticLine text="all" value={all} />
+        </tr>
+        <tr>
+          <StatisticLine text="average" value={average} />
+        </tr>
+        <tr>
+          <StatisticLine text="positive" value={positive} />
+        </tr>
+      </tbody>
+    </table>
   );
 };
 
-const Stat = ({ text, value }) => {
+const StatisticLine = ({ text, value }) => {
   return (
-    <p>
+    <td>
       {text} {text === "positive" ? value + "%" : value}
-    </p>
+    </td>
   );
 };
 
@@ -74,11 +83,13 @@ const App = () => {
 
   return (
     <div>
+      <Title text="give feedback" />
       <Feedback
         onGoodFeedback={handleGoodFeedback}
         onNeutralFeedback={handleNeutralFeedback}
         onBadFeedback={handleBadFeedback}
       />
+      <Title text="statistics" />
       <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
   );
