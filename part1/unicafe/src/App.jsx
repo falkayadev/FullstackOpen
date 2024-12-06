@@ -22,13 +22,27 @@ const Feedback = ({ onGoodFeedback, onBadFeedback, onNeutralFeedback }) => {
 };
 
 const Statistics = ({ good, bad, neutral }) => {
+  const all = good + bad + neutral;
+  const average = (good - bad) / all || 0;
+  const positive = (good / all) * 100 || 0;
   return (
     <>
       <Title text="statistics" />
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
+      <Stat text="good" value={good} />
+      <Stat text="neutral" value={neutral} />
+      <Stat text="bad" value={bad} />
+      <Stat text="all" value={all} />
+      <Stat text="average" value={average} />
+      <Stat text="positive" value={positive} />
     </>
+  );
+};
+
+const Stat = ({ text, value }) => {
+  return (
+    <p>
+      {text} {text === "positive" ? value + "%" : value}
+    </p>
   );
 };
 
