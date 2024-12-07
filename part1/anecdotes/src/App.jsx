@@ -13,12 +13,13 @@ const App = () => {
   ];
 
   const [selected, setSelected] = useState(0);
+  const [points, setPoints] = useState(Array(anecdotes.length).fill(0));
 
   const randomIndexGenerator = () => {
     return Math.floor(Math.random() * anecdotes.length);
   };
 
-  const handleClick = () => {
+  const handleGenerate = () => {
     let randomIndex;
     do {
       randomIndex = randomIndexGenerator();
@@ -27,10 +28,21 @@ const App = () => {
     setSelected(randomIndex);
   };
 
+  const handleVote = () => {
+    const newPoints = points.map((point, index) =>
+      index === selected ? point + 1 : point
+    );
+    setPoints(newPoints);
+  };
+
+  console.log(points);
+
   return (
     <div>
       <p>{anecdotes[selected]}</p>
-      <button onClick={handleClick}>next anecdote</button>
+      <p>has {points[selected]} votes</p>
+      <button onClick={handleVote}>vote</button>
+      <button onClick={handleGenerate}>next anecdote</button>
     </div>
   );
 };
