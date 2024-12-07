@@ -1,4 +1,10 @@
-import Part from "./Part";
+const Part = ({ part, exercises }) => {
+  return (
+    <p>
+      {part} {exercises}
+    </p>
+  );
+};
 
 const Content = ({ course }) => {
   return (
