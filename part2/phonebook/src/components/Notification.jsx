@@ -1,3 +1,3 @@
-export default Notification = ({ message }) => {
-  return <div className="notification">{message}</div>;
+export default Notification = ({ notification }) => {
+  return <div className={notification.type}>{notification.message}</div>;
 };

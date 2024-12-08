@@ -9,19 +9,18 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
-  const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState({});
 
   useEffect(() => {
-    dbConnection.getAll().then((response) => {
+    dbConnection.getAll().then((data) => {
       console.log("effect");
-      setPersons(response.data);
+      setPersons(data);
     });
   }, []);
 
-  const filteredPersons =
-    persons.length > 0
-      ? persons.filter((person) => person.name.includes(filter))
-      : [];
+  const filteredPersons = persons.filter((person) =>
+    person && person.name ? person.name.includes(filter) : false
+  );
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -35,7 +34,7 @@ const App = () => {
         `${newName} is already added to phonebook, replace the old number with a new one?`
       );
       if (confirmChoice) {
-        dbConnection.update(existingPerson.id, newPerson).then((response) => {
+        dbConnection.update(existingPerson.id, newPerson).then(() => {
           setPersons(
             persons.map((person) =>
               person.id === existingPerson.id
@@ -43,13 +42,13 @@ const App = () => {
                 : person
             )
           );
-          notify(`Updated ${newName}`);
+          notify("success", `Updated ${newName}`);
         });
       }
     } else {
-      dbConnection.create(newPerson).then((response) => {
-        setPersons(persons.concat(response.data));
-        notify(`Added ${newName}`);
+      dbConnection.create(newPerson).then((data) => {
+        setPersons(persons.concat(data));
+        notify("success", `Added ${newName}`);
       });
     }
 
@@ -58,10 +57,20 @@ const App = () => {
   };
 
   const handleDelete = (id) => {
-    dbConnection.remove(id).then((response) => {
-      setPersons(persons.filter((person) => person.id !== response.data.id));
-      notify(`Deleted ${response.data.name}`);
-    });
+    dbConnection
+      .remove(id)
+      .then((data) => {
+        notify("success", `Deleted ${data.name}`);
+        setPersons(persons.filter((person) => person.id !== data.id));
+      })
+      .catch((error) => {
+        const person = persons.find((person) => person.id === id);
+        notify(
+          "error",
+          `the person ${person.name} was already deleted from server`
+        );
+        setPersons(persons.filter((person) => person.id !== id));
+      });
   };
 
   const handleChangeName = (e) => {
@@ -76,8 +85,8 @@ const App = () => {
     setFilter(e.target.value);
   };
 
-  const notify = (message) => {
-    setNotification(message);
+  const notify = (type, message) => {
+    setNotification({ type, message });
     setTimeout(() => {
       setNotification(null);
     }, 5000);
@@ -86,7 +95,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      {notification && <Notification message={notification} />}
+      {notification && <Notification notification={notification} />}
       <Filter value={filter} onChange={handleFilter} />
       <h3>Add a new</h3>
       <PersonForm

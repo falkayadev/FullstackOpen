@@ -14,7 +14,7 @@ export default function Persons({ persons, onDelete }) {
   return (
     <ul>
       {persons.map((person) => (
-        <Person key={person.name} person={person} onDelete={onDelete} />
+        <Person key={person.id} person={person} onDelete={onDelete} />
       ))}
     </ul>
   );
