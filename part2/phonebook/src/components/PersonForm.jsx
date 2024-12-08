@@ -10,7 +10,7 @@ function FormInput({ labelText, inputName, value, onChange }) {
 }
 
 export default function PersonForm({
-  onSubmit,
+  onCreate,
   name,
   onChangeName,
   number,
@@ -18,7 +18,7 @@ export default function PersonForm({
 }) {
   return (
     <>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onCreate}>
         <FormInput
           labelText="name:"
           inputName="name"

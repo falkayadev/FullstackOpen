@@ -20,7 +20,7 @@ const App = () => {
     person.name.includes(filter)
   );
 
-  const handleSubmit = (e) => {
+  const handleCreate = (e) => {
     const isAlreadyExist = persons.some((person) => person.name === newName);
     if (isAlreadyExist) {
       alert(`${newName} is already added to phonebook`);
@@ -36,6 +36,12 @@ const App = () => {
     });
     setNewName("");
     setNewNumber("");
+  };
+
+  const handleDelete = (id) => {
+    dbConnection.remove(id).then((response) => {
+      setPersons(persons.filter((person) => person.id !== response.data.id));
+    });
   };
 
   const handleChangeName = (e) => {
@@ -56,14 +62,14 @@ const App = () => {
       <Filter value={filter} onChange={handleFilter} />
       <h3>Add a new</h3>
       <PersonForm
-        onSubmit={handleSubmit}
+        onCreate={handleCreate}
         name={newName}
         number={newNumber}
         onChangeName={handleChangeName}
         onChangeNumber={handleChangeNumber}
       />
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} onDelete={handleDelete} />
       {/* <div>
         debug: {newName ? newName : "Empty Input"} {JSON.stringify(persons)}
       </div> */}
