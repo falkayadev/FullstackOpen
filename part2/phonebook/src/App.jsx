@@ -16,24 +16,39 @@ const App = () => {
     });
   }, []);
 
-  const filteredPersons = persons.filter((person) =>
-    person.name.includes(filter)
-  );
+  const filteredPersons =
+    persons.length > 0
+      ? persons.filter((person) => person.name.includes(filter))
+      : [];
 
   const handleCreate = (e) => {
-    const isAlreadyExist = persons.some((person) => person.name === newName);
-    if (isAlreadyExist) {
-      alert(`${newName} is already added to phonebook`);
-      return;
-    }
     e.preventDefault();
     const newPerson = {
       name: newName,
       number: newNumber,
     };
-    dbConnection.create(newPerson).then((response) => {
-      setPersons(persons.concat(response.data));
-    });
+    const existingPerson = persons.find((person) => person.name === newName);
+    if (existingPerson) {
+      const confirmChoice = window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      );
+      if (confirmChoice) {
+        dbConnection.update(existingPerson.id, newPerson).then((response) => {
+          setPersons(
+            persons.map((person) =>
+              person.id === existingPerson.id
+                ? { ...person, number: newNumber }
+                : person
+            )
+          );
+        });
+      }
+    } else {
+      dbConnection.create(newPerson).then((response) => {
+        setPersons(persons.concat(response.data));
+      });
+    }
+
     setNewName("");
     setNewNumber("");
   };
