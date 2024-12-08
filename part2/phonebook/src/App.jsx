@@ -3,11 +3,13 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import dbConnection from "./services/dbConnection";
+import Notification from "./components/Notification";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     dbConnection.getAll().then((response) => {
@@ -41,11 +43,13 @@ const App = () => {
                 : person
             )
           );
+          notify(`Updated ${newName}`);
         });
       }
     } else {
       dbConnection.create(newPerson).then((response) => {
         setPersons(persons.concat(response.data));
+        notify(`Added ${newName}`);
       });
     }
 
@@ -56,6 +60,7 @@ const App = () => {
   const handleDelete = (id) => {
     dbConnection.remove(id).then((response) => {
       setPersons(persons.filter((person) => person.id !== response.data.id));
+      notify(`Deleted ${response.data.name}`);
     });
   };
 
@@ -71,9 +76,17 @@ const App = () => {
     setFilter(e.target.value);
   };
 
+  const notify = (message) => {
+    setNotification(message);
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000);
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
+      {notification && <Notification message={notification} />}
       <Filter value={filter} onChange={handleFilter} />
       <h3>Add a new</h3>
       <PersonForm
