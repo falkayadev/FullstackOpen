@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import axios from "axios";
-
+import dbConnection from "./services/dbConnection";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
@@ -11,7 +10,7 @@ const App = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3000/persons").then((response) => {
+    dbConnection.getAll().then((response) => {
       console.log("effect");
       setPersons(response.data);
     });
@@ -28,13 +27,13 @@ const App = () => {
       return;
     }
     e.preventDefault();
-    setPersons(
-      persons.concat({
-        name: newName,
-        number: newNumber,
-        id: persons.length + 1,
-      })
-    );
+    const newPerson = {
+      name: newName,
+      number: newNumber,
+    };
+    dbConnection.create(newPerson).then((response) => {
+      setPersons(persons.concat(response.data));
+    });
     setNewName("");
     setNewNumber("");
   };
