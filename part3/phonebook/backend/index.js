@@ -2,13 +2,13 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
-dotenv.config();
 const port = process.env.PORT || 3001;
-app.use(express.static("dist"));
 app.use(cors());
 app.use(express.json());
+app.use(express.static("dist"));
 morgan.token("body", (req) => {
   return JSON.stringify(req.body);
 });
