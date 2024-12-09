@@ -60,6 +60,7 @@ const App = () => {
     dbConnection
       .remove(id)
       .then((data) => {
+        console.log(data);
         notify("success", `Deleted ${data.name}`);
         setPersons(persons.filter((person) => person.id !== data.id));
       })
