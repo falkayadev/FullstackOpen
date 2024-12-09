@@ -15,24 +15,29 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
-const generateId = () => {
-  return String(Math.round(Math.random() * 100000));
+const errorHandler = (err, req, res, next) => {
+  console.error(err.message);
+  if (err.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+  next(error);
 };
-
 app.get("/api/people", (req, res) => {
   Person.find({}).then((people) => {
     res.json(people);
   });
 });
 
-app.get("/api/people/:id", (req, res) => {
-  Person.findById(req.params.id).then((person) => {
-    if (person) {
-      res.json(person);
-    } else {
-      res.status(404).json({ error: "Not found!" });
-    }
-  });
+app.get("/api/people/:id", (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((person) => {
+      if (person) {
+        res.json(person);
+      } else {
+        res.status(404).json({ error: "Not found!" });
+      }
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/api/info", (req, res) => {
@@ -60,12 +65,16 @@ app.post("/api/people", (req, res) => {
   // }
 });
 
-app.delete("/api/people/:id", (req, res) => {
-  const id = req.params.id;
-  const person = people.find((person) => person.id === id);
-  people = people.filter((person) => person.id !== id);
-  res.status(204).json(person);
+app.delete("/api/people/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then((result) => {
+      console.log(result);
+      res.status(204).json(result);
+    })
+    .catch((error) => next(error));
 });
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is listening on ${port} port`);
