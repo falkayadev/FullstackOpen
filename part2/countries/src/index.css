@@ -6,11 +6,6 @@
   font-size: 2rem;
 }
 
-.details--languages__title {
+.details--title_sub {
   font-size: 1.5rem;
-}
-
-.details--flag {
-  width: 15rem;
-  object-fit: contain;
 }
