@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import Person from "./models/person.js";
+import axios from "axios";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -20,12 +21,14 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
   }
-  next(error);
+  next(err);
 };
-app.get("/api/people", (req, res) => {
-  Person.find({}).then((people) => {
-    res.json(people);
-  });
+app.get("/api/people", (req, res, next) => {
+  Person.find({})
+    .then((people) => {
+      res.json(people);
+    })
+    .catch((error) => next(err));
 });
 
 app.get("/api/people/:id", (req, res, next) => {
@@ -47,22 +50,29 @@ app.get("/api/info", (req, res) => {
   res.send(content);
 });
 
-app.post("/api/people", (req, res) => {
-  // const isExist = people.some((person) => person.name === req.body.name);
-  const person = new Person({
-    name: req.body.name,
-    number: req.body.number,
-  });
-
-  if (req.body.name && req.body.number) {
-    person.save().then((result) => {
-      res.json(person);
-    });
+app.post("/api/people", async (req, res) => {
+  const { name, number } = req.body;
+  const person = new Person({ name, number });
+  const existingPerson = await Person.findOne({ name });
+  if (existingPerson) {
+    await axios.put(`/api/people/${existingPerson.id}`, person);
+    res.end();
+  } else {
+    if (name && number) {
+      const savedPerson = await person.save();
+      res.json(savedPerson);
+    }
   }
+});
 
-  // if (isExist) {
-  //   return res.status(409).json({ error: "Name must be unique" });
-  // }
+app.put("/api/people/:id", (req, res, next) => {
+  const { name, number } = req.body;
+  const person = { name, number };
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      res.json(updatedPerson);
+    })
+    .catch((err) => next(err));
 });
 
 app.delete("/api/people/:id", (req, res, next) => {
