@@ -10,10 +10,10 @@ const Person = ({ person, onDelete }) => {
   );
 };
 
-export default function Persons({ persons, onDelete }) {
+export default function People({ people, onDelete }) {
   return (
     <ul>
-      {persons.map((person) => (
+      {people.map((person) => (
         <Person key={person.id} person={person} onDelete={onDelete} />
       ))}
     </ul>

@@ -5,7 +5,7 @@ import Persons from "./components/Persons";
 import dbConnection from "./services/dbConnection";
 import Notification from "./components/Notification";
 const App = () => {
-  const [persons, setPersons] = useState([]);
+  const [people, setPeople] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
@@ -14,11 +14,11 @@ const App = () => {
   useEffect(() => {
     dbConnection.getAll().then((data) => {
       console.log("effect");
-      setPersons(data);
+      setPeople(data);
     });
   }, []);
 
-  const filteredPersons = persons.filter((person) =>
+  const filteredPeople = people.filter((person) =>
     person && person.name ? person.name.includes(filter) : false
   );
 
@@ -28,15 +28,15 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
-    const existingPerson = persons.find((person) => person.name === newName);
+    const existingPerson = people.find((person) => person.name === newName);
     if (existingPerson) {
       const confirmChoice = window.confirm(
         `${newName} is already added to phonebook, replace the old number with a new one?`
       );
       if (confirmChoice) {
         dbConnection.update(existingPerson.id, newPerson).then(() => {
-          setPersons(
-            persons.map((person) =>
+          setPeople(
+            people.map((person) =>
               person.id === existingPerson.id
                 ? { ...person, number: newNumber }
                 : person
@@ -47,7 +47,7 @@ const App = () => {
       }
     } else {
       dbConnection.create(newPerson).then((data) => {
-        setPersons(persons.concat(data));
+        setPeople(people.concat(data));
         notify("success", `Added ${newName}`);
       });
     }
@@ -62,15 +62,15 @@ const App = () => {
       .then((data) => {
         console.log(data);
         notify("success", `Deleted ${data.name}`);
-        setPersons(persons.filter((person) => person.id !== data.id));
+        setPeople(people.filter((person) => person.id !== data.id));
       })
       .catch((error) => {
-        const person = persons.find((person) => person.id === id);
+        const person = people.find((person) => person.id === id);
         notify(
           "error",
           `the person ${person.name} was already deleted from server`
         );
-        setPersons(persons.filter((person) => person.id !== id));
+        setPeople(people.filter((person) => person.id !== id));
       });
   };
 
@@ -107,9 +107,9 @@ const App = () => {
         onChangeNumber={handleChangeNumber}
       />
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons} onDelete={handleDelete} />
+      <Persons people={filteredPeople} onDelete={handleDelete} />
       {/* <div>
-        debug: {newName ? newName : "Empty Input"} {JSON.stringify(persons)}
+        debug: {newName ? newName : "Empty Input"} {JSON.stringify(people)}
       </div> */}
     </div>
   );
