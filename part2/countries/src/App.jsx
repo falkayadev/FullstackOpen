@@ -7,6 +7,7 @@ import CountryDetails from "./components/CountryDetails";
 function App() {
   const [countries, setCountries] = useState([]);
   const [filter, setFilter] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   const filteredCountries = filter
     ? countries.filter((country) =>
@@ -23,8 +24,16 @@ function App() {
       });
   }, []);
   const handleFilter = (e) => {
+    if (selectedCountry) {
+      setSelectedCountry(null);
+    }
     setFilter(e.target.value);
   };
+
+  const handleShowDetails = (country) => {
+    setSelectedCountry(country);
+  };
+
   return (
     <>
       <div className="container">
@@ -40,13 +49,19 @@ function App() {
             onChange={handleFilter}
           />
         </div>
-        {filteredCountries.length > 10 ? (
+        {filteredCountries.length > 10 && (
           <p>Too many matches, specify another filter.</p>
-        ) : filteredCountries.length === 1 ? (
-          <CountryDetails country={filteredCountries[0]} />
-        ) : (
-          <CountryList countries={filteredCountries} />
         )}
+        {filteredCountries.length === 1 ? (
+          <CountryDetails country={filteredCountries[0]} />
+        ) : selectedCountry ? (
+          <CountryDetails country={selectedCountry} />
+        ) : filteredCountries.length <= 10 ? (
+          <CountryList
+            countries={filteredCountries}
+            onShowDetails={handleShowDetails}
+          />
+        ) : null}
       </div>
     </>
   );
