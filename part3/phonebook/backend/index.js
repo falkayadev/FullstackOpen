@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 const app = express();
 dotenv.config();
 const port = process.env.PORT || 3001;
-
+app.use(express.static("dist"));
 app.use(cors());
 app.use(express.json());
 morgan.token("body", (req) => {
