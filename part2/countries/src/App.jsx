@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
+import CountryList from "./components/CountryList";
+import CountryDetails from "./components/CountryDetails";
 
 function App() {
   const [countries, setCountries] = useState([]);
@@ -25,19 +27,26 @@ function App() {
   };
   return (
     <>
-      <div>
-        <label htmlFor="filter">find countries</label>
-        <input
-          type="text"
-          name="filter"
-          value={filter}
-          onChange={handleFilter}
-        />
-        <ul>
-          {filteredCountries.map((country) => (
-            <li>{country.name.common}</li>
-          ))}
-        </ul>
+      <div className="container">
+        <div className="filter--container">
+          <label htmlFor="filter" className="filter--label">
+            find countries
+          </label>
+          <input
+            type="text"
+            name="filter"
+            className="filter--input"
+            value={filter}
+            onChange={handleFilter}
+          />
+        </div>
+        {filteredCountries.length > 10 ? (
+          <p>Too many matches, specify another filter.</p>
+        ) : filteredCountries.length === 1 ? (
+          <CountryDetails country={filteredCountries[0]} />
+        ) : (
+          <CountryList countries={filteredCountries} />
+        )}
       </div>
     </>
   );

@@ -1,0 +1,16 @@
+.filter--label {
+  margin-right: 0.5rem;
+}
+
+.details--title {
+  font-size: 2rem;
+}
+
+.details--languages__title {
+  font-size: 1.5rem;
+}
+
+.details--flag {
+  width: 15rem;
+  object-fit: contain;
+}
