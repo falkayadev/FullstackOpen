@@ -46,14 +46,21 @@ const App = () => {
         });
       }
     } else {
-      dbConnection.create(newPerson).then((data) => {
-        setPeople(people.concat(data));
-        notify("success", `Added ${newName}`);
-      });
+      dbConnection
+        .create(newPerson)
+        .then((data) => {
+          console.log(data);
+          notify("success", `Added ${newName}`);
+          setPeople([...people, data]);
+          console.log(people);
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          console.error("Error adding person:", error);
+          notify("error", "Failed to add person.");
+        });
     }
-
-    setNewName("");
-    setNewNumber("");
   };
 
   const handleDelete = (id) => {

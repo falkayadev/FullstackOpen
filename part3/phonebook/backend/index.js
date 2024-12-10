@@ -2,7 +2,6 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import Person from "./models/person.js";
-import axios from "axios";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -43,33 +42,37 @@ app.get("/api/people/:id", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.get("/api/info", (req, res) => {
-  const content = `Phonebook has info for ${
-    people.length
-  } people <br/> ${new Date()}`;
-  res.send(content);
+app.get("/api/info", (req, res, next) => {
+  let quantity;
+  Person.find({})
+    .then((result) => {
+      quantity = result.length;
+      const content = `Phonebook has info for ${quantity} people <br/> ${new Date()}`;
+      res.send(content);
+    })
+    .catch((err) => next(err));
 });
 
-app.post("/api/people", async (req, res) => {
+app.post("/api/people", (req, res, next) => {
   const { name, number } = req.body;
   const person = new Person({ name, number });
-  const existingPerson = await Person.findOne({ name });
-  if (existingPerson) {
-    await axios.put(`/api/people/${existingPerson.id}`, person);
-    res.end();
+  if (name && number) {
+    person
+      .save()
+      .then((savedPerson) => {
+        res.status(201).json(savedPerson);
+      })
+      .catch((err) => next(err));
   } else {
-    if (name && number) {
-      const savedPerson = await person.save();
-      res.json(savedPerson);
-    }
+    res.status(400).json({ error: "Name and number are required." });
   }
 });
 
-app.put("/api/people/:id", (req, res, next) => {
+app.put("/api/people/:id", async (req, res, next) => {
   const { name, number } = req.body;
-  const person = { name, number };
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(req.params.id, { name, number }, { new: true })
     .then((updatedPerson) => {
+      console.log(updatedPerson);
       res.json(updatedPerson);
     })
     .catch((err) => next(err));
