@@ -17,8 +17,11 @@ app.use(
 
 const errorHandler = (err, req, res, next) => {
   console.error(err.message);
+  console.log(err.name);
   if (err.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
+  } else if (err.name === "ValidationError") {
+    return res.status(400).json({ error: err.message });
   }
   next(err);
 };
@@ -27,7 +30,7 @@ app.get("/api/people", (req, res, next) => {
     .then((people) => {
       res.json(people);
     })
-    .catch((error) => next(err));
+    .catch((err) => next(err));
 });
 
 app.get("/api/people/:id", (req, res, next) => {
@@ -39,7 +42,7 @@ app.get("/api/people/:id", (req, res, next) => {
         res.status(404).json({ error: "Not found!" });
       }
     })
-    .catch((error) => next(error));
+    .catch((err) => next(err));
 });
 
 app.get("/api/info", (req, res, next) => {
@@ -54,23 +57,25 @@ app.get("/api/info", (req, res, next) => {
 });
 
 app.post("/api/people", (req, res, next) => {
-  const { name, number } = req.body;
-  const person = new Person({ name, number });
-  if (name && number) {
-    person
-      .save()
-      .then((savedPerson) => {
-        res.status(201).json(savedPerson);
-      })
-      .catch((err) => next(err));
-  } else {
-    res.status(400).json({ error: "Name and number are required." });
-  }
+  const body = req.body;
+
+  const person = new Person({ name: body.name, number: body.number });
+
+  person
+    .save({ runValidators: true })
+    .then((savedPerson) => {
+      res.status(201).json(savedPerson);
+    })
+    .catch((err) => next(err));
 });
 
 app.put("/api/people/:id", async (req, res, next) => {
   const { name, number } = req.body;
-  Person.findByIdAndUpdate(req.params.id, { name, number }, { new: true })
+  Person.findByIdAndUpdate(
+    req.params.id,
+    { name, number },
+    { new: true, runValidators: true, context: "query" }
+  )
     .then((updatedPerson) => {
       console.log(updatedPerson);
       res.json(updatedPerson);
@@ -84,7 +89,7 @@ app.delete("/api/people/:id", (req, res, next) => {
       console.log(result);
       res.status(204).json(result);
     })
-    .catch((error) => next(error));
+    .catch((err) => next(err));
 });
 
 app.use(errorHandler);

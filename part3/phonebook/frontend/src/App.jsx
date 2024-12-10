@@ -22,10 +22,41 @@ const App = () => {
     person && person.name ? person.name.includes(filter) : false
   );
 
-  const handleCreate = (e) => {
+  // sub function of submit
+  const handleUpdate = (id, newPerson) => {
+    dbConnection
+      .update(id, newPerson)
+      .then((updatedPerson) => {
+        notify("success", `Updated ${newName}`);
+        setPeople(
+          people.map((person) => (person.id === id ? updatedPerson : person))
+        );
+      })
+      .catch((error) => {
+        notify("error", error.response.data.error);
+      });
+  };
+  // sub function of submit
+  const handleCreate = (newPerson) => {
+    dbConnection
+      .create(newPerson)
+      .then((data) => {
+        console.log(data);
+        notify("success", `Added ${data.name}`);
+        setPeople([...people, data]);
+        console.log(people);
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((error) => {
+        notify("error", error.response.data.error);
+      });
+  };
+  // main function
+  const handleSubmit = (e) => {
     e.preventDefault();
     const newPerson = {
-      name: newName,
+      name: Number(newName),
       number: newNumber,
     };
     const existingPerson = people.find((person) => person.name === newName);
@@ -34,35 +65,13 @@ const App = () => {
         `${newName} is already added to phonebook, replace the old number with a new one?`
       );
       if (confirmChoice) {
-        dbConnection.update(existingPerson.id, newPerson).then(() => {
-          setPeople(
-            people.map((person) =>
-              person.id === existingPerson.id
-                ? { ...person, number: newNumber }
-                : person
-            )
-          );
-          notify("success", `Updated ${newName}`);
-        });
+        handleUpdate(existingPerson.id, newPerson);
       }
     } else {
-      dbConnection
-        .create(newPerson)
-        .then((data) => {
-          console.log(data);
-          notify("success", `Added ${newName}`);
-          setPeople([...people, data]);
-          console.log(people);
-          setNewName("");
-          setNewNumber("");
-        })
-        .catch((error) => {
-          console.error("Error adding person:", error);
-          notify("error", "Failed to add person.");
-        });
+      handleCreate(newPerson);
     }
   };
-
+  // main function
   const handleDelete = (id) => {
     dbConnection
       .remove(id)
@@ -80,19 +89,19 @@ const App = () => {
         setPeople(people.filter((person) => person.id !== id));
       });
   };
-
+  // input eventHandler
   const handleChangeName = (e) => {
     setNewName(e.target.value);
   };
-
+  // input eventHandler
   const handleChangeNumber = (e) => {
     setNewNumber(e.target.value);
   };
-
+  // inputEventFandler
   const handleFilter = (e) => {
     setFilter(e.target.value);
   };
-
+  // Frontend error handler
   const notify = (type, message) => {
     setNotification({ type, message });
     setTimeout(() => {
@@ -107,7 +116,7 @@ const App = () => {
       <Filter value={filter} onChange={handleFilter} />
       <h3>Add a new</h3>
       <PersonForm
-        onCreate={handleCreate}
+        onSubmit={handleSubmit}
         name={newName}
         number={newNumber}
         onChangeName={handleChangeName}
