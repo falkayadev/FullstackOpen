@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "lint": "eslint .",
     "build:ui": "if exist dist (rmdir /s /q dist) && cd ../frontend && npm run build && xcopy /E /I dist ../backend",
     "deploy:full": "npm run build:ui && git add . && git commit -m \"uibuild\" && git push"
   },
@@ -20,7 +21,12 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@stylistic/eslint-plugin-js": "^2.12.0",
     "dotenv": "^16.4.7",
+    "eslint": "^9.16.0",
+    "eslint-plugin-react": "^7.37.2",
+    "globals": "^15.13.0",
     "nodemon": "^3.1.7"
   }
 }

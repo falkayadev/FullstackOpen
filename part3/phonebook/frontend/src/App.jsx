@@ -1,113 +1,113 @@
-import { useState, useEffect } from "react";
-import Filter from "./components/Filter";
-import PersonForm from "./components/PersonForm";
-import Persons from "./components/Persons";
-import dbConnection from "./services/dbConnection";
-import Notification from "./components/Notification";
+import { useState, useEffect } from 'react'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
+import dbConnection from './services/dbConnection'
+import Notification from './components/Notification'
 const App = () => {
-  const [people, setPeople] = useState([]);
-  const [newName, setNewName] = useState("");
-  const [newNumber, setNewNumber] = useState("");
-  const [filter, setFilter] = useState("");
-  const [notification, setNotification] = useState({});
+  const [people, setPeople] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
+  const [notification, setNotification] = useState({})
 
   useEffect(() => {
     dbConnection.getAll().then((data) => {
-      console.log("effect");
-      setPeople(data);
-    });
-  }, []);
+      console.log('effect')
+      setPeople(data)
+    })
+  }, [])
 
   const filteredPeople = people.filter((person) =>
     person && person.name ? person.name.includes(filter) : false
-  );
+  )
 
   // sub function of submit
   const handleUpdate = (id, newPerson) => {
     dbConnection
       .update(id, newPerson)
       .then((updatedPerson) => {
-        notify("success", `Updated ${newName}`);
+        notify('success', `Updated ${newName}`)
         setPeople(
           people.map((person) => (person.id === id ? updatedPerson : person))
-        );
+        )
       })
       .catch((error) => {
-        notify("error", error.response.data.error);
-      });
-  };
+        notify('error', error.response.data.error)
+      })
+  }
   // sub function of submit
   const handleCreate = (newPerson) => {
     dbConnection
       .create(newPerson)
       .then((data) => {
-        console.log(data);
-        notify("success", `Added ${data.name}`);
-        setPeople([...people, data]);
-        console.log(people);
-        setNewName("");
-        setNewNumber("");
+        console.log(data)
+        notify('success', `Added ${data.name}`)
+        setPeople([...people, data])
+        console.log(people)
+        setNewName('')
+        setNewNumber('')
       })
       .catch((error) => {
-        notify("error", error.response.data.error);
-      });
-  };
+        notify('error', error.response.data.error)
+      })
+  }
   // main function
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     const newPerson = {
       name: newName,
       number: newNumber,
-    };
-    const existingPerson = people.find((person) => person.name === newName);
+    }
+    const existingPerson = people.find((person) => person.name === newName)
     if (existingPerson) {
       const confirmChoice = window.confirm(
         `${newName} is already added to phonebook, replace the old number with a new one?`
-      );
+      )
       if (confirmChoice) {
-        handleUpdate(existingPerson.id, newPerson);
+        handleUpdate(existingPerson.id, newPerson)
       }
     } else {
-      handleCreate(newPerson);
+      handleCreate(newPerson)
     }
-  };
+  }
   // main function
   const handleDelete = (id) => {
     dbConnection
       .remove(id)
       .then((data) => {
-        console.log(data);
-        notify("success", `Deleted ${data.name}`);
-        setPeople(people.filter((person) => person.id !== data.id));
+        console.log(data)
+        notify('success', `Deleted ${data.name}`)
+        setPeople(people.filter((person) => person.id !== data.id))
       })
-      .catch((error) => {
-        const person = people.find((person) => person.id === id);
+      .catch(() => {
+        const person = people.find((person) => person.id === id)
         notify(
-          "error",
+          'error',
           `the person ${person.name} was already deleted from server`
-        );
-        setPeople(people.filter((person) => person.id !== id));
-      });
-  };
+        )
+        setPeople(people.filter((person) => person.id !== id))
+      })
+  }
   // input eventHandler
   const handleChangeName = (e) => {
-    setNewName(e.target.value);
-  };
+    setNewName(e.target.value)
+  }
   // input eventHandler
   const handleChangeNumber = (e) => {
-    setNewNumber(e.target.value);
-  };
+    setNewNumber(e.target.value)
+  }
   // inputEventFandler
   const handleFilter = (e) => {
-    setFilter(e.target.value);
-  };
+    setFilter(e.target.value)
+  }
   // Frontend error handler
   const notify = (type, message) => {
-    setNotification({ type, message });
+    setNotification({ type, message })
     setTimeout(() => {
-      setNotification(null);
-    }, 5000);
-  };
+      setNotification(null)
+    }, 5000)
+  }
 
   return (
     <div>
@@ -128,7 +128,7 @@ const App = () => {
         debug: {newName ? newName : "Empty Input"} {JSON.stringify(people)}
       </div> */}
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
