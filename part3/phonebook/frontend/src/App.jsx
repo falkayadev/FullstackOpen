@@ -56,7 +56,7 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const newPerson = {
-      name: Number(newName),
+      name: newName,
       number: newNumber,
     };
     const existingPerson = people.find((person) => person.name === newName);
