@@ -40,4 +40,26 @@ const mostBlogAuthor = (blogs) => {
   return mostBlogsAuthor;
 };
 
-export default { dummy, totalLikes, favoriteBlog, mostBlogAuthor };
+const mostLikedAuthor = (blogs) => {
+  const authorLikes = blogs.reduce((acc, blog) => {
+    acc[blog.author] = (acc[blog.author] || 0) + blog.likes;
+    return acc;
+  }, {});
+
+  const mostLiked = Object.entries(authorLikes).reduce(
+    (max, [author, likes]) => {
+      return likes > max.likes ? { author, likes } : max;
+    },
+    { author: null, likes: -1 }
+  );
+
+  return mostLiked;
+};
+
+export default {
+  dummy,
+  totalLikes,
+  favoriteBlog,
+  mostBlogAuthor,
+  mostLikedAuthor,
+};
