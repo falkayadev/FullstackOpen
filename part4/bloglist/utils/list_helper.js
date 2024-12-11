@@ -20,4 +20,24 @@ const favoriteBlog = (blogs) => {
   return favoriteBlog;
 };
 
-export default { dummy, totalLikes, favoriteBlog };
+const mostBlogAuthor = (blogs) => {
+  const reducer = (prev, cur) => {
+    const found = prev.find((item) => item.author === cur.author);
+    if (found) {
+      return [...prev, { ...found, blogs: found.blogs++ }];
+    } else {
+      return [...prev, { author: cur.author, blogs: 1 }];
+    }
+  };
+  const authorStatistics = blogs.reduce(reducer, []);
+  const mostBlogsAuthor = authorStatistics.reduce((prev, cur) => {
+    if (prev.blogs > cur.blogs) {
+      return prev;
+    } else {
+      return cur;
+    }
+  }, {});
+  return mostBlogsAuthor;
+};
+
+export default { dummy, totalLikes, favoriteBlog, mostBlogAuthor };
