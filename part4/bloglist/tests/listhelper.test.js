@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import listHelper from "../utils/list_helper.js";
-import testData from "./testData.js"
+import testData from "./testData.js";
 
 test("dummy returns one", () => {
   const blogs = [];
@@ -9,7 +9,7 @@ test("dummy returns one", () => {
   assert.strictEqual(result, 1);
 });
 describe("total likes", () => {
-  test('of empty list is zero', () => {
+  test("of empty list is zero", () => {
     const result = listHelper.totalLikes([]);
     assert.strictEqual(result, 0);
   });
@@ -20,5 +20,13 @@ describe("total likes", () => {
   test("when all posts have likes", () => {
     const result = listHelper.totalLikes(testData.blogs);
     assert.strictEqual(result, 36);
+  });
+  test("find favorite blog", () => {
+    const result = listHelper.favoriteBlog(testData.blogs);
+    assert.deepStrictEqual(result, {
+      title: "Canonical string reduction",
+      author: "Edsger W. Dijkstra",
+      likes: 12,
+    });
   });
 });
