@@ -48,6 +48,34 @@ test("creation fails with proper statuscode and message if username already take
   assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 });
 
+test("creation fails with username shorter than 3 chars", async () => {
+  const usersAtStart = await helper.usersInDb();
+  const newUser = {
+    username: "te",
+    name: "Another User",
+    password: "password456",
+  };
+  const result = await api.post("/api/users").send(newUser).expect(400);
+  const userAtEnd = await helper.usersInDb();
+  assert.strictEqual(userAtEnd.length, usersAtStart.length);
+  assert(result.body.error.includes("shorter than the minimum allowed length"));
+});
+
+test("creation fails with password shorter than 3 chars", async () => {
+  const usersAtStart = await helper.usersInDb();
+  const newUser = {
+    username: "testuser2",
+    name: "Another User",
+    password: "pa",
+  };
+  const result = await api.post("/api/users").send(newUser).expect(400);
+  const userAtEnd = await helper.usersInDb();
+  assert.strictEqual(userAtEnd.length, usersAtStart.length);
+  assert(
+    result.body.error.includes("Password must be at least 3 characters long")
+  );
+});
+
 beforeEach(async () => {
   await User.deleteMany({});
   const passwordHash = await bcrypt.hash("password", 10);
