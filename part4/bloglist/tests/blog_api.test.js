@@ -88,10 +88,7 @@ test("delete post has non existing id", async () => {
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-  for (let post of helper.initialPosts) {
-    const blog = new Blog(post);
-    await blog.save();
-  }
+  await Blog.insertMany(helper.initialPosts);
 });
 
 after(async () => {
