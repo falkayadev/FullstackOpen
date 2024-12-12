@@ -11,6 +11,7 @@ const blogSchema = new mongoose.Schema({
     required: true,
   },
   likes: Number,
+  user: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 blogSchema.set("toJSON", {
@@ -21,6 +22,9 @@ blogSchema.set("toJSON", {
   },
 });
 
-const Blog = mongoose.model("Blog", blogSchema);
+// first parameter: model name
+// second parameter: schema
+// third parameter: collection name
+const Blog = mongoose.model("Blog", blogSchema, "blogs");
 
 export default Blog;

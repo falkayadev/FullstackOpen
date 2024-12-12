@@ -7,4 +7,5 @@ export default {
       ? process.env.TEST_MONGODB_URI
       : process.env.MONGODB_URI,
   PORT: process.env.PORT,
+  SECRET: process.env.SECRET,
 };
