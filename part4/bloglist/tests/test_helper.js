@@ -1,4 +1,5 @@
-const blogs = [
+import Blog from "../models/blog.js";
+const initialPosts = [
   {
     _id: "5a422a851b54a676234d17f7",
     title: "React patterns",
@@ -49,4 +50,20 @@ const blogs = [
   },
 ];
 
-export default { blogs };
+const nonExistingId = async () => {
+  const post = new Blog({
+    title: "remove",
+    url: "https://remove.com",
+  });
+  await post.save();
+  await post.deleteOne();
+
+  return post._id.toString();
+};
+
+const postsInDb = async () => {
+  const posts = await Blog.find({});
+  return posts.map((post) => post.toJSON());
+};
+
+export default { initialPosts, nonExistingId, postsInDb };
