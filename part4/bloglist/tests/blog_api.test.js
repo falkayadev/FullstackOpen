@@ -86,6 +86,25 @@ test("delete post has non existing id", async () => {
   await api.delete(`/api/blogs/${nonExistingId}`).expect(404);
 });
 
+test("update a post", async () => {
+  const existingId = helper.initialPosts[0]["_id"];
+  api
+    .put(`/api/blogs/${existingId}`)
+    .send({ likes: 100 })
+    .expect(200)
+    .expect((res) => {
+      assert.deepStrictEqual(res.body, {
+        ...helper.initialPosts[0],
+        likes: 100,
+      });
+    });
+});
+
+test("update a non-existing post", async () => {
+  const id = await helper.nonExistingId();
+  await api.put(`/api/blogs/${id}`).send({ likes: 100 }).expect(404);
+});
+
 beforeEach(async () => {
   await Blog.deleteMany({});
   await Blog.insertMany(helper.initialPosts);

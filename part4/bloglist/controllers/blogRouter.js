@@ -53,4 +53,27 @@ blogRouter.delete("/:id", async (request, response, next) => {
   }
 });
 
+blogRouter.put("/:id", async (request, response, next) => {
+  try {
+    const exists = await Blog.findById(request.params.id);
+    if (!exists) {
+      return response.status(404).json({ error: "Blog post not found" });
+    }
+
+    const updatedPost = await Blog.findByIdAndUpdate(
+      request.params.id,
+      request.body,
+      { new: true, runValidators: true }
+    );
+
+    if (updatedPost) {
+      response.json(updatedPost);
+    } else {
+      response.status(400).json({ error: "Update failed" });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default blogRouter;
