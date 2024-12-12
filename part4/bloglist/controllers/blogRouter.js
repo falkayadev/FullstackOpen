@@ -54,6 +54,10 @@ blogRouter.post("/", async (request, response, next) => {
 });
 
 blogRouter.delete("/:id", async (request, response, next) => {
+  const decodedToken = jwt.verify(helper.getTokenFrom(request), config.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
   try {
     const id = request.params.id;
     const result = await Blog.findByIdAndDelete(id);
@@ -68,17 +72,22 @@ blogRouter.delete("/:id", async (request, response, next) => {
 });
 
 blogRouter.put("/:id", async (request, response, next) => {
+  const body = request.body;
+  const id = request.params.id;
+  const decodedToken = jwt.verify(helper.getTokenFrom(request), config.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
   try {
     const exists = await Blog.findById(request.params.id);
     if (!exists) {
       return response.status(404).json({ error: "Blog post not found" });
     }
 
-    const updatedPost = await Blog.findByIdAndUpdate(
-      request.params.id,
-      request.body,
-      { new: true, runValidators: true }
-    );
+    const updatedPost = await Blog.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (updatedPost) {
       response.json(updatedPost);
