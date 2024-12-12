@@ -12,7 +12,7 @@ blogRouter.get("/", async (_request, response, next) => {
 });
 
 blogRouter.post("/", async (request, response, next) => {
-  const blog = new Blog(request.body);
+  const blog = new Blog({ ...request.body, likes: request.body.likes || 0 });
 
   try {
     const savedBlog = await blog.save();

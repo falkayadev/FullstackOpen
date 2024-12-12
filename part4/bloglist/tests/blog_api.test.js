@@ -58,6 +58,22 @@ test("a valid blog post can be added", async () => {
   assert.strictEqual(response.body.length, testData.blogs.length + 1);
 });
 
+test("blog post without likes is given default value of 0", async () => {
+  const newPostWithoutLikes = {
+    title: "Test Title",
+    author: "Test Author",
+    url: "https://example.com",
+  };
+  await api
+    .post("/api/blogs")
+    .send(newPostWithoutLikes)
+    .expect(201)
+    .expect("Content-Type", /application\/json/)
+    .expect((res) => {
+      assert.strictEqual(res.body.likes, 0);
+    });
+});
+
 beforeEach(async () => {
   await Blog.deleteMany({});
   for (let post of testData.blogs) {
