@@ -74,6 +74,14 @@ test("blog post without likes is given default value of 0", async () => {
     });
 });
 
+test("blog post title or url properties are missing", async () => {
+  const newDeficientPost = {
+    author: "Test Author",
+    likes: 5,
+  };
+  await api.post("/api/blogs").send(newDeficientPost).expect(400);
+});
+
 beforeEach(async () => {
   await Blog.deleteMany({});
   for (let post of testData.blogs) {
