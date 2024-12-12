@@ -25,13 +25,37 @@ test('first blog post is "React patterns"', async () => {
   assert(titles.includes("React patterns"));
 });
 
-test.only("database _id is converted to id", async () => {
+test("database _id is converted to id", async () => {
   const response = await api.get("/api/blogs");
   const ids = response.body.map((blog) => blog.id);
   assert.deepStrictEqual(
     ids,
     testData.blogs.map((blog) => blog._id)
   );
+});
+
+test("a valid blog post can be added", async () => {
+  const newPost = {
+    title: "Test Title",
+    author: "Test Author",
+    url: "https://example.com",
+    likes: 5,
+  };
+  await api
+    .post("/api/blogs")
+    .send(newPost)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+  const response = await api.get("/api/blogs");
+  const found = response.body.find(
+    (blog) =>
+      blog.title === newPost.title &&
+      blog.author === newPost.author &&
+      blog.url === newPost.url &&
+      blog.likes === newPost.likes
+  );
+  assert(found);
+  assert.strictEqual(response.body.length, testData.blogs.length + 1);
 });
 
 beforeEach(async () => {
