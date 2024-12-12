@@ -3,11 +3,12 @@ import assert from "node:assert";
 import listHelper from "../utils/list_helper.js";
 import testData from "./testData.js";
 
-test("dummy returns one", () => {
+test.only("dummy returns one", () => {
   const blogs = [];
   const result = listHelper.dummy(blogs);
   assert.strictEqual(result, 1);
 });
+
 describe("total likes", () => {
   test("of empty list is zero", () => {
     const result = listHelper.totalLikes([]);
