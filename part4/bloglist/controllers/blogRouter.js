@@ -1,10 +1,14 @@
 import express from "express";
 const blogRouter = express.Router();
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
+import jwt from "jsonwebtoken";
+import helper from "../tests/test_helper.js";
+import config from "../utils/config.js";
 
 blogRouter.get("/", async (_request, response, next) => {
   try {
-    const allPosts = await Blog.find({});
+    const allPosts = await Blog.find({}).populate("user");
     response.json(allPosts);
   } catch (err) {
     next(err);
@@ -25,9 +29,19 @@ blogRouter.get("/:id", async (request, response, next) => {
 });
 
 blogRouter.post("/", async (request, response, next) => {
-  const blog = new Blog({ ...request.body, likes: request.body.likes || 0 });
-
+  const body = request.body;
+  const decodedToken = jwt.verify(helper.getTokenFrom(request), config.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
   try {
+    const user = await User.findById(decodedToken.id);
+    const blog = new Blog({
+      ...request.body,
+      likes: request.body.likes || 0,
+      user: user._id,
+    });
+
     if (request.body.title === undefined || request.body.url === undefined) {
       return response.status(400).json({ error: "title or url missing" });
     } else {
@@ -35,7 +49,7 @@ blogRouter.post("/", async (request, response, next) => {
       response.status(201).json(savedBlog);
     }
   } catch (err) {
-    next(err);
+    return response.status(404).json({ error: "user not found" });
   }
 });
 

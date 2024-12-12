@@ -71,4 +71,19 @@ const usersInDb = async () => {
   const users = await User.find({});
   return users.map((user) => user.toJSON());
 };
-export default { initialPosts, nonExistingId, postsInDb, usersInDb };
+
+const getTokenFrom = (request) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.startsWith("Bearer ")) {
+    return authorization.replace("Bearer ", "");
+  }
+  return null;
+};
+
+export default {
+  initialPosts,
+  nonExistingId,
+  postsInDb,
+  usersInDb,
+  getTokenFrom,
+};

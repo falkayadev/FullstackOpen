@@ -3,6 +3,8 @@ import assert from "node:assert";
 import mongoose from "mongoose";
 import supertest from "supertest";
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
+import jwt from "jsonwebtoken";
 import helper from "./test_helper.js";
 import app from "../app.js";
 const api = supertest(app);
@@ -42,6 +44,7 @@ test("a valid blog post can be added", async () => {
   await api
     .post("/api/blogs")
     .send(newPost)
+    .set("Authorization", `Bearer ${helper.token}`)
     .expect(201)
     .expect("Content-Type", /application\/json/);
 
