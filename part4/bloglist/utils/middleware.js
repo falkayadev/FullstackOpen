@@ -24,12 +24,19 @@ const tokenExtractor = (request, _response, next) => {
 };
 
 const userExtractor = (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, config.SECRET);
-  if (!decodedToken.id) {
+  try {
+    if (!request.token) {
+      return response.status(401).json({ error: "token missing" });
+    }
+    const decodedToken = jwt.verify(request.token, config.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+    request.user = decodedToken;
+    next();
+  } catch (err) {
     return response.status(401).json({ error: "token invalid" });
   }
-  request.user = decodedToken;
-  next();
 };
 
 export default { errorHandler, tokenExtractor, userExtractor };
