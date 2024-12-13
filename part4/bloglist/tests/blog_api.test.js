@@ -6,8 +6,19 @@ import Blog from "../models/blog.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 import helper from "./test_helper.js";
+import config from "../utils/config.js";
+import bcrypt from "bcrypt";
 import app from "../app.js";
 const api = supertest(app);
+
+beforeEach(async () => {
+  await Blog.deleteMany({});
+  await Blog.insertMany(helper.initialPosts);
+  await User.deleteMany({});
+  const passwordHash = await bcrypt.hash("password", 10);
+  const dummyUser = new User({ username: "testuser", passwordHash });
+  await dummyUser.save();
+});
 
 test("blogs posts are returned as json", async () => {
   await api
@@ -41,10 +52,17 @@ test("a valid blog post can be added", async () => {
     url: "https://example.com",
     likes: 5,
   };
+  const user = await User.findOne({ username: "testuser" });
+  console.log(user);
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  };
+  const token = jwt.sign(userForToken, config.SECRET);
   await api
     .post("/api/blogs")
     .send(newPost)
-    .set("Authorization", `Bearer ${helper.token}`)
+    .set("Authorization", `Bearer ${token}`)
     .expect(201)
     .expect("Content-Type", /application\/json/);
 
@@ -91,7 +109,7 @@ test("delete post has non existing id", async () => {
 
 test("update a post", async () => {
   const existingId = helper.initialPosts[0]["_id"];
-  api
+  await api
     .put(`/api/blogs/${existingId}`)
     .send({ likes: 100 })
     .expect(200)
@@ -106,11 +124,6 @@ test("update a post", async () => {
 test("update a non-existing post", async () => {
   const id = await helper.nonExistingId();
   await api.put(`/api/blogs/${id}`).send({ likes: 100 }).expect(404);
-});
-
-beforeEach(async () => {
-  await Blog.deleteMany({});
-  await Blog.insertMany(helper.initialPosts);
 });
 
 after(async () => {
