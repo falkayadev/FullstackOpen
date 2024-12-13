@@ -29,24 +29,28 @@ blogRouter.get("/:id", async (request, response, next) => {
 });
 
 blogRouter.post("/", async (request, response, next) => {
-  const body = request.body;
-  const decodedToken = jwt.verify(helper.getTokenFrom(request), config.SECRET);
+  const decodedToken = jwt.verify(request.token, config.SECRET);
   if (!decodedToken.id) {
     return response.status(401).json({ error: "token invalid" });
   }
   try {
+    const body = request.body;
     const user = await User.findById(decodedToken.id);
     const blog = new Blog({
-      ...request.body,
-      likes: request.body.likes || 0,
+      ...body,
+      likes: body.likes || 0,
       user: user._id,
     });
 
-    if (request.body.title === undefined || request.body.url === undefined) {
+    if (!body?.title || !body?.url) {
       return response.status(400).json({ error: "title or url missing" });
-    } else {
+    }
+
+    try {
       const savedBlog = await blog.save();
       response.status(201).json(savedBlog);
+    } catch (err) {
+      next(err);
     }
   } catch (err) {
     return response.status(404).json({ error: "user not found" });
