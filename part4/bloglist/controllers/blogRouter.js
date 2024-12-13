@@ -6,8 +6,9 @@ import jwt from "jsonwebtoken";
 import helper from "../tests/test_helper.js";
 import config from "../utils/config.js";
 
-blogRouter.get("/", async (_request, response, next) => {
+blogRouter.get("/", async (request, response, next) => {
   try {
+    console.log(request.token, request.user);
     const allPosts = await Blog.find({}).populate("user");
     response.json(allPosts);
   } catch (err) {

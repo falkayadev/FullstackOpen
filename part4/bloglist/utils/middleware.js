@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+import config from "./config.js";
+
 const errorHandler = (error, _request, response, next) => {
   console.error(error.message);
 
@@ -20,4 +23,13 @@ const tokenExtractor = (request, _response, next) => {
   next();
 };
 
-export default { errorHandler, tokenExtractor };
+const userExtractor = (request, response, next) => {
+  const decodedToken = jwt.verify(request.token, config.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
+  request.user = decodedToken;
+  next();
+};
+
+export default { errorHandler, tokenExtractor, userExtractor };
