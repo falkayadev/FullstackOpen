@@ -8,31 +8,35 @@ import Notification from "./components/Notification";
 const App = () => {
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
-  const [credentials, setCredentials] = useState({});
-  const [inputs, setInputs] = useState({});
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: "",
+  });
+  const [inputs, setInputs] = useState({
+    title: "",
+    author: "",
+    url: "",
+  });
   const [errorMessage, setErrorMessage] = useState(null);
-
-  const notify = (type, message, duration) => {
-    setErrorMessage({ type, message });
-    setTimeout(() => {
-      setErrorMessage(null);
-    }, duration || 5000);
-  };
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("user");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
       setUser(user);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
       blogService.setToken(user.token);
       blogService.getAll().then((blogs) => setBlogs(blogs));
     }
-  }, [user]);
+  }, []);
+
+  const helper = {
+    notify: (type, message, timeout = 5000) => {
+      setErrorMessage({ type, message });
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, timeout);
+    },
+  };
 
   const handleCredentialsChange = (event) => {
     const { name, value } = event.target;
@@ -50,23 +54,19 @@ const App = () => {
         password: credentials.password,
       });
       blogService.setToken(user.token);
-      notify("success", "Login successful");
+      helper.notify("success", "Login successful");
       window.localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
-      setUsername("");
-      setPassword("");
+      setCredentials({ username: "", password: "" });
     } catch (error) {
-      notify("error", error.response.data.error);
-      setUsername("");
-      setPassword("");
+      console.log(error);
     }
   };
 
   const handleLogout = () => {
     window.localStorage.removeItem("user");
-    blogService.setToken(null);
     setUser(null);
-    notify("success", "Logout successful", 1000);
+    helper.notify("success", "Logout successful", 1000);
   };
 
   const handleInputsChange = (event) => {
@@ -85,7 +85,7 @@ const App = () => {
         author: inputs.author,
         url: inputs.url,
       });
-      notify(
+      helper.notify(
         "success",
         `${user.name} created a new blog titled ${newBlog.title}`
       );
@@ -94,7 +94,10 @@ const App = () => {
       setAuthor("");
       setUrl("");
     } catch (error) {
-      notify("error", error.response.data.error || "Blog creation failed!");
+      helper.notify(
+        "error",
+        error.response.data.error || "Blog creation failed!"
+      );
     }
   };
 
