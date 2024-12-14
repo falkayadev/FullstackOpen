@@ -20,14 +20,21 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("user");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-      blogService.getAll().then((blogs) => setBlogs(blogs));
-    }
+    const checkLoginStatus = async () => {
+      try {
+        const user = await loginService.status();
+        setUser(user);
+        blogService.getAll().then((blogs) => setBlogs(blogs));
+      } catch (error) {
+        console.error("Error fetching user status:", error);
+      }
+    };
+    checkLoginStatus();
   }, []);
+
+  useEffect(() => {
+    blogService.getAll().then((blogs) => setBlogs(blogs));
+  }, [user]);
 
   const helper = {
     notify: (type, message, timeout = 5000) => {
@@ -53,7 +60,6 @@ const App = () => {
         username: credentials.username,
         password: credentials.password,
       });
-      blogService.setToken(user.token);
       helper.notify("success", "Login successful");
       window.localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
@@ -63,10 +69,9 @@ const App = () => {
     }
   };
 
-  const handleLogout = () => {
-    window.localStorage.removeItem("user");
+  const handleLogout = async () => {
+    await loginService.logout();
     setUser(null);
-    helper.notify("success", "Logout successful", 1000);
   };
 
   const handleInputsChange = (event) => {
@@ -142,7 +147,7 @@ const App = () => {
       {errorMessage && (
         <Notification type={errorMessage.type} message={errorMessage.message} />
       )}
-      <span>{user.name} logged in</span>
+      <span>{user.username} logged in</span>
       <button onClick={handleLogout}>logout</button>
       <CreateForm
         createBlog={createBlog}

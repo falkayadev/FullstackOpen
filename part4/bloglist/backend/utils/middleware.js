@@ -15,28 +15,18 @@ const errorHandler = (error, _request, response, next) => {
   next(error);
 };
 
-const tokenExtractor = (request, _response, next) => {
-  const authorization = request.get("authorization");
-  if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
-    request.token = authorization.substring(7);
+const authenticateToken = (request, response, next) => {
+  const token = request.cookies.token;
+  if (!token) {
+    return response.status(401).json({ error: "token missing" });
   }
-  next();
-};
-
-const userExtractor = (request, response, next) => {
-  try {
-    if (!request.token) {
-      return response.status(401).json({ error: "token missing" });
+  jwt.verify(token, config.SECRET, (err, user) => {
+    if (err) {
+      return response.sendStatus(403);
     }
-    const decodedToken = jwt.verify(request.token, config.SECRET);
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: "token invalid" });
-    }
-    request.user = decodedToken;
+    request.user = user;
     next();
-  } catch (err) {
-    return response.status(401).json({ error: "token invalid" });
-  }
+  });
 };
 
-export default { errorHandler, tokenExtractor, userExtractor };
+export default { errorHandler, authenticateToken };

@@ -4,6 +4,7 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../utils/config.js";
+import middleware from "../utils/middleware.js";
 
 loginRouter.post("/", async (request, response) => {
   const { username, password } = request.body;
@@ -24,11 +25,31 @@ loginRouter.post("/", async (request, response) => {
 
   const token = jwt.sign(userForToken, config.SECRET);
 
+  response.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60,
+  });
+
   response.status(200).send({
-    token,
     username: user.username,
     name: user.name,
   });
 });
 
+loginRouter.post("/logout", (_request, response) => {
+  response.clearCookie("token");
+  response.status(204).send();
+});
+
+loginRouter.get(
+  "/status",
+  middleware.authenticateToken,
+  (request, response) => {
+    response.status(200).json({
+      username: request.user.username,
+      name: request.user.name,
+    });
+  }
+);
 export default loginRouter;
