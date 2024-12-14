@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const CreateForm = ({ createBlog, onChange, input }) => {
+const CreateForm = ({ createBlog, onChange, inputs }) => {
   return (
     <form onSubmit={createBlog}>
       <div>
@@ -8,8 +8,8 @@ const CreateForm = ({ createBlog, onChange, input }) => {
         <input
           type="text"
           name="title"
-          value={input.title}
-          onChange={onChange.title}
+          value={inputs.title}
+          onChange={onChange}
         />
       </div>
       <div>
@@ -17,18 +17,13 @@ const CreateForm = ({ createBlog, onChange, input }) => {
         <input
           type="text"
           name="author"
-          value={input.author}
-          onChange={onChange.author}
+          value={inputs.author}
+          onChange={onChange}
         />
       </div>
       <div>
         <label htmlFor="url">url:</label>
-        <input
-          type="text"
-          name="url"
-          value={input.url}
-          onChange={onChange.url}
-        />
+        <input type="text" name="url" value={inputs.url} onChange={onChange} />
       </div>
       <button type="submit">create</button>
     </form>
