@@ -30,12 +30,10 @@ const App = () => {
 
   useEffect(() => {
     const fetchBlogs = async () => {
-      console.log("user yok 24");
       if (user) {
         try {
           const blogs = await blogService.getAll();
           setBlogs(blogs);
-          console.log("fetch edildi 29");
         } catch (error) {
           console.error("Error fetching blogs:", error);
         }
@@ -105,9 +103,11 @@ const App = () => {
         `${user.name} created a new blog titled ${newBlog.title}`
       );
       setBlogs((prevBlogs) => prevBlogs.concat(newBlog));
-      setTitle("");
-      setAuthor("");
-      setUrl("");
+      setInputs({
+        title: "",
+        author: "",
+        url: "",
+      });
     } catch (error) {
       helper.notify("error", "Blog creation failed!");
     }
