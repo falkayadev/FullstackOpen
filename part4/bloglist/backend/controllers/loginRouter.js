@@ -25,31 +25,11 @@ loginRouter.post("/", async (request, response) => {
 
   const token = jwt.sign(userForToken, config.SECRET);
 
-  response.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60,
-  });
-
   response.status(200).send({
+    token: token,
     username: user.username,
     name: user.name,
   });
 });
 
-loginRouter.post("/logout", (_request, response) => {
-  response.clearCookie("token");
-  response.status(204).send();
-});
-
-loginRouter.get(
-  "/status",
-  middleware.authenticateToken,
-  (request, response) => {
-    response.status(200).json({
-      username: request.user.username,
-      name: request.user.name,
-    });
-  }
-);
 export default loginRouter;

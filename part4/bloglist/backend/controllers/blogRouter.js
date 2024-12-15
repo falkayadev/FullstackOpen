@@ -6,9 +6,25 @@ import jwt from "jsonwebtoken";
 import helper from "../tests/test_helper.js";
 import config from "../utils/config.js";
 
+const getTokenFrom = (request) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.startsWith("Bearer ")) {
+    return authorization.replace("Bearer ", "");
+  }
+  return null;
+};
+
 blogRouter.get("/", async (request, response, next) => {
   try {
-    const allPosts = await Blog.find({}).populate("user");
+    console.log(request.headers);
+    const decodedToken = await jwt.verify(getTokenFrom(request), config.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+    const allPosts = await Blog.find({ user: decodedToken.id }).populate(
+      "user"
+    );
+
     response.json(allPosts);
   } catch (err) {
     next(err);
@@ -29,12 +45,12 @@ blogRouter.get("/:id", async (request, response, next) => {
 });
 
 blogRouter.post("/", async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, config.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: "token invalid" });
-  }
   try {
     const body = request.body;
+    const decodedToken = jwt.verify(getTokenFrom(request), config.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "token invalid" });
+    }
     const user = await User.findById(decodedToken.id);
     const blog = new Blog({
       ...body,
@@ -48,6 +64,8 @@ blogRouter.post("/", async (request, response, next) => {
 
     try {
       const savedBlog = await blog.save();
+      user.blogs = user.blogs.concat(savedBlog.toJSON().id);
+      await user.save();
       response.status(201).json(savedBlog);
     } catch (err) {
       next(err);

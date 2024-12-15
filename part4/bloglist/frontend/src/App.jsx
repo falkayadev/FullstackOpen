@@ -20,20 +20,29 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const user = await loginService.status();
-        setUser(user);
-        blogService.getAll().then((blogs) => setBlogs(blogs));
-      } catch (error) {
-        console.error("Error fetching user status:", error);
-      }
-    };
-    checkLoginStatus();
+    const loggedUserJSON = window.localStorage.getItem("user");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
   }, []);
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
+    const fetchBlogs = async () => {
+      console.log("user yok 24");
+      if (user) {
+        try {
+          const blogs = await blogService.getAll();
+          setBlogs(blogs);
+          console.log("fetch edildi 29");
+        } catch (error) {
+          console.error("Error fetching blogs:", error);
+        }
+      }
+    };
+
+    fetchBlogs();
   }, [user]);
 
   const helper = {
@@ -62,6 +71,7 @@ const App = () => {
       });
       helper.notify("success", "Login successful");
       window.localStorage.setItem("user", JSON.stringify(user));
+      blogService.setToken(user.token);
       setUser(user);
       setCredentials({ username: "", password: "" });
     } catch (error) {
@@ -70,7 +80,7 @@ const App = () => {
   };
 
   const handleLogout = async () => {
-    await loginService.logout();
+    localStorage.removeItem("user");
     setUser(null);
   };
 
@@ -99,10 +109,7 @@ const App = () => {
       setAuthor("");
       setUrl("");
     } catch (error) {
-      helper.notify(
-        "error",
-        error.response.data.error || "Blog creation failed!"
-      );
+      helper.notify("error", "Blog creation failed!");
     }
   };
 

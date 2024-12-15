@@ -1,6 +1,3 @@
-import jwt from "jsonwebtoken";
-import config from "./config.js";
-
 const errorHandler = (error, _request, response, next) => {
   console.error(error.message);
 
@@ -15,18 +12,4 @@ const errorHandler = (error, _request, response, next) => {
   next(error);
 };
 
-const authenticateToken = (request, response, next) => {
-  const token = request.cookies.token;
-  if (!token) {
-    return response.status(401).json({ error: "token missing" });
-  }
-  jwt.verify(token, config.SECRET, (err, user) => {
-    if (err) {
-      return response.sendStatus(403);
-    }
-    request.user = user;
-    next();
-  });
-};
-
-export default { errorHandler, authenticateToken };
+export default { errorHandler };
