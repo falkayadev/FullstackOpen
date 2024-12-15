@@ -6,17 +6,9 @@ import jwt from "jsonwebtoken";
 import helper from "../tests/test_helper.js";
 import config from "../utils/config.js";
 
-const getTokenFrom = (request) => {
-  const authorization = request.get("authorization");
-  if (authorization && authorization.startsWith("Bearer ")) {
-    return authorization.replace("Bearer ", "");
-  }
-  return null;
-};
-
 blogRouter.get("/", async (request, response, next) => {
   try {
-    const decodedToken = await jwt.verify(getTokenFrom(request), config.SECRET);
+    const decodedToken = await jwt.verify(request.token, config.SECRET);
     if (!decodedToken.id) {
       return response.status(401).json({ error: "token invalid" });
     }
@@ -46,7 +38,7 @@ blogRouter.get("/:id", async (request, response, next) => {
 blogRouter.post("/", async (request, response, next) => {
   try {
     const body = request.body;
-    const decodedToken = jwt.verify(getTokenFrom(request), config.SECRET);
+    const decodedToken = jwt.verify(request.token, config.SECRET);
     if (!decodedToken.id) {
       return response.status(401).json({ error: "token invalid" });
     }
@@ -102,7 +94,7 @@ blogRouter.delete("/:id", async (request, response, next) => {
 blogRouter.put("/:id", async (request, response, next) => {
   const body = request.body;
   const id = request.params.id;
-  const decodedToken = jwt.verify(helper.getTokenFrom(request), config.SECRET);
+  const decodedToken = jwt.verify(request.token, config.SECRET);
   if (!decodedToken.id) {
     return response.status(401).json({ error: "token invalid" });
   }

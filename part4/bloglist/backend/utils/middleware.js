@@ -1,3 +1,5 @@
+import { response } from "express";
+
 const errorHandler = (error, _request, response, next) => {
   console.error(error.message);
 
@@ -12,4 +14,13 @@ const errorHandler = (error, _request, response, next) => {
   next(error);
 };
 
-export default { errorHandler };
+const getToken = (request, response, next) => {
+  const authorization = request.get("authorization");
+  request.token =
+    authorization && authorization.startsWith("Bearer ")
+      ? authorization.replace("Bearer ", "")
+      : null;
+  next();
+};
+
+export default { errorHandler, getToken };

@@ -13,6 +13,7 @@ mongoose.connect(config.MONGODB_URI);
 app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
+app.use(middleware.getToken);
 app.use("/api/login", loginRouter);
 app.use("/api/users", userRouter);
 app.use("/api/blogs", blogRouter);
