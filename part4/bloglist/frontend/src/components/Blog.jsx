@@ -20,7 +20,7 @@ const Blog = ({ blog, updateBlog }) => {
   };
   const blogRow = { display: "flex", gap: "10px" };
   return (
-    <div style={blogStyle}>
+    <li style={blogStyle}>
       <div style={blogRow}>
         <p>
           {blog.title} by {blog.author}
@@ -45,7 +45,7 @@ const Blog = ({ blog, updateBlog }) => {
           <p>{blog.author}</p>
         </>
       )}
-    </div>
+    </li>
   );
 };
 
