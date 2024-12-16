@@ -17,16 +17,6 @@ const App = () => {
   });
   const [user, setUser] = useUser();
 
-  const [credentials, setCredentials] = useState({
-    username: "",
-    password: "",
-  });
-  const [inputs, setInputs] = useState({
-    title: "",
-    author: "",
-    url: "",
-  });
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -40,18 +30,13 @@ const App = () => {
   );
 
   // handle actions
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const login = async (inputs) => {
     try {
-      const user = await loginService.login({
-        username: credentials.username,
-        password: credentials.password,
-      });
+      const user = await loginService.login(inputs);
       loginFormRef.current.toggleVisibility();
       helpers.notify("success", "Login successful", 5000, setErrorMessage);
       window.localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
-      setCredentials({ username: "", password: "" });
     } catch (error) {
       if (error.status === 500) {
         setErrorMessage({ type: "error", message: "Server error" });
@@ -60,14 +45,9 @@ const App = () => {
     }
   };
 
-  const createBlog = async (event) => {
-    event.preventDefault();
+  const createBlog = async (noteObject) => {
     try {
-      const newBlog = await blogService.create({
-        title: inputs.title,
-        author: inputs.author,
-        url: inputs.url,
-      });
+      const newBlog = await blogService.create(noteObject);
       createFormRef.current.toggleVisibility();
       helpers.notify(
         "success",
@@ -76,31 +56,9 @@ const App = () => {
         setErrorMessage
       );
       setBlogs((prevBlogs) => prevBlogs.concat(newBlog));
-      setInputs({
-        title: "",
-        author: "",
-        url: "",
-      });
     } catch (error) {
       helpers.notify("error", "Blog creation failed!", 5000, setErrorMessage);
     }
-  };
-
-  // handle form input changes
-  const handleCredentialsChange = (event) => {
-    const { name, value } = event.target;
-    setCredentials((prevCredentials) => ({
-      ...prevCredentials,
-      [name]: value,
-    }));
-  };
-
-  const handleInputsChange = (event) => {
-    const { name, value } = event.target;
-    setInputs((prevInputs) => ({
-      ...prevInputs,
-      [name]: value,
-    }));
   };
 
   const loginFormRef = useRef();
@@ -109,12 +67,7 @@ const App = () => {
     <>
       <Header errorMessage={errorMessage} title="Log in to application" />
       <Togglable buttonLabel="login" ref={loginFormRef}>
-        <LoginForm
-          handleLogin={handleLogin}
-          credentials={credentials}
-          errorMessage={errorMessage}
-          handleCredentialsChange={handleCredentialsChange}
-        />
+        <LoginForm login={login} />
       </Togglable>
     </>
   );
@@ -127,11 +80,7 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </Togglable>
       <Togglable buttonLabel="create a new blog" ref={createFormRef}>
-        <CreateForm
-          createBlog={createBlog}
-          inputs={inputs}
-          onChange={handleInputsChange}
-        />
+        <CreateForm createBlog={createBlog} />
       </Togglable>
       <BlogList blogs={blogs} />
     </div>
