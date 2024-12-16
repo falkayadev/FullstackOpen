@@ -1,15 +1,22 @@
-import { useState, useEffect } from "react";
-import Blog from "./components/Blog";
+import { useState, useEffect, useRef } from "react";
 import CreateForm from "./components/CreateForm";
 import blogService from "./services/blogService";
 import loginService from "./services/loginService";
-import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
+import Header from "./components/Header";
+import BlogList from "./components/BlogList";
+import useUser from "./hooks/useUser";
+import useBlogs from "./hooks/useBlogs";
+import helpers from "./utils/helpers";
+import Togglable from "./components/Togglable";
 
 const App = () => {
-  const [user, setUser] = useState(null);
-  const [blogs, setBlogs] = useState([]);
-  const [loginVisible, setLoginVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState({
+    type: null,
+    message: null,
+  });
+  const [user, setUser] = useUser();
+
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
@@ -19,48 +26,20 @@ const App = () => {
     author: "",
     url: "",
   });
-  const [errorMessage, setErrorMessage] = useState(null);
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("user");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      if (user) {
-        try {
-          const blogs = await blogService.getAll();
-          setBlogs(blogs);
-        } catch (error) {
-          handleLogout();
-        }
-      }
-    };
-
-    fetchBlogs();
-  }, [user]);
-
-  const helper = {
-    notify: (type, message, timeout = 5000) => {
-      setErrorMessage({ type, message });
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, timeout);
-    },
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
   };
 
-  const handleCredentialsChange = (event) => {
-    const { name, value } = event.target;
-    setCredentials((prevCredentials) => ({
-      ...prevCredentials,
-      [name]: value,
-    }));
-  };
+  const [blogs, setBlogs] = useBlogs(
+    user,
+    setUser,
+    setErrorMessage,
+    handleLogout
+  );
 
+  // handle actions
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -68,9 +47,9 @@ const App = () => {
         username: credentials.username,
         password: credentials.password,
       });
-      helper.notify("success", "Login successful");
+      loginFormRef.current.toggleVisibility();
+      helpers.notify("success", "Login successful", 5000, setErrorMessage);
       window.localStorage.setItem("user", JSON.stringify(user));
-      blogService.setToken(user.token);
       setUser(user);
       setCredentials({ username: "", password: "" });
     } catch (error) {
@@ -81,9 +60,39 @@ const App = () => {
     }
   };
 
-  const handleLogout = async () => {
-    localStorage.removeItem("user");
-    setUser(null);
+  const createBlog = async (event) => {
+    event.preventDefault();
+    try {
+      const newBlog = await blogService.create({
+        title: inputs.title,
+        author: inputs.author,
+        url: inputs.url,
+      });
+      createFormRef.current.toggleVisibility();
+      helpers.notify(
+        "success",
+        `${user.name} created a new blog titled ${newBlog.title}`,
+        5000,
+        setErrorMessage
+      );
+      setBlogs((prevBlogs) => prevBlogs.concat(newBlog));
+      setInputs({
+        title: "",
+        author: "",
+        url: "",
+      });
+    } catch (error) {
+      helpers.notify("error", "Blog creation failed!", 5000, setErrorMessage);
+    }
+  };
+
+  // handle form input changes
+  const handleCredentialsChange = (event) => {
+    const { name, value } = event.target;
+    setCredentials((prevCredentials) => ({
+      ...prevCredentials,
+      [name]: value,
+    }));
   };
 
   const handleInputsChange = (event) => {
@@ -94,60 +103,41 @@ const App = () => {
     }));
   };
 
-  const createBlog = async (event) => {
-    event.preventDefault();
-    try {
-      const newBlog = await blogService.create({
-        title: inputs.title,
-        author: inputs.author,
-        url: inputs.url,
-      });
-      helper.notify(
-        "success",
-        `${user.name} created a new blog titled ${newBlog.title}`
-      );
-      setBlogs((prevBlogs) => prevBlogs.concat(newBlog));
-      setInputs({
-        title: "",
-        author: "",
-        url: "",
-      });
-    } catch (error) {
-      helper.notify("error", "Blog creation failed!");
-    }
-  };
+  const loginFormRef = useRef();
+  const createFormRef = useRef();
+  const renderLogin = () => (
+    <>
+      <Header errorMessage={errorMessage} title="Log in to application" />
+      <Togglable buttonLabel="login" ref={loginFormRef}>
+        <LoginForm
+          handleLogin={handleLogin}
+          credentials={credentials}
+          errorMessage={errorMessage}
+          handleCredentialsChange={handleCredentialsChange}
+        />
+      </Togglable>
+    </>
+  );
 
-  if (user === null) {
-    return (
-      <LoginForm
-        handleLogin={handleLogin}
-        credentials={credentials}
-        errorMessage={errorMessage}
-        handleCredentialsChange={handleCredentialsChange}
-        loginVisible={loginVisible}
-        toggleLoginVisible={(val) => setLoginVisible(val)}
-      />
-    );
-  }
-
-  return (
+  const renderMainApp = () => (
     <div>
-      <h2>blogs</h2>
-      {errorMessage && (
-        <Notification type={errorMessage.type} message={errorMessage.message} />
-      )}
-      <span>{user.username} logged in</span>
-      <button onClick={handleLogout}>logout</button>
-      <CreateForm
-        createBlog={createBlog}
-        inputs={inputs}
-        onChange={handleInputsChange}
-      />
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
-      ))}
+      <Header errorMessage={errorMessage} title="Blogs" />
+      <Togglable buttonLabel="user settings">
+        <p>{user.username} logged in</p>
+        <button onClick={handleLogout}>logout</button>
+      </Togglable>
+      <Togglable buttonLabel="create a new blog" ref={createFormRef}>
+        <CreateForm
+          createBlog={createBlog}
+          inputs={inputs}
+          onChange={handleInputsChange}
+        />
+      </Togglable>
+      <BlogList blogs={blogs} />
     </div>
   );
+
+  return user === null ? renderLogin() : renderMainApp();
 };
 
 export default App;
