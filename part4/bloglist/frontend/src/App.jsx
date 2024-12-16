@@ -61,6 +61,17 @@ const App = () => {
     }
   };
 
+  const updateBlog = async (id, reqObj) => {
+    try {
+      const updatedBlog = await blogService.update(id, reqObj);
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) => (blog.id === id ? updatedBlog : blog))
+      );
+    } catch (error) {
+      helpers.notify("error", "Blog update failed!", 5000, setErrorMessage);
+    }
+  };
+
   const loginFormRef = useRef();
   const createFormRef = useRef();
   const renderLogin = () => (
@@ -82,7 +93,7 @@ const App = () => {
       <Togglable buttonLabel="create a new blog" ref={createFormRef}>
         <CreateForm createBlog={createBlog} />
       </Togglable>
-      <BlogList blogs={blogs} />
+      <BlogList blogs={blogs} updateBlog={updateBlog} />
     </div>
   );
 

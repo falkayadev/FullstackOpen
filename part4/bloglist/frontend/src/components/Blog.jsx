@@ -1,7 +1,16 @@
 import { useState } from "react";
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const like = () => {
+    const updatedBlog = {
+      author: blog.author,
+      url: blog.url,
+      title: blog.title,
+      likes: blog.likes + 1,
+    };
+    updateBlog(blog.id, updatedBlog);
+  };
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -31,7 +40,7 @@ const Blog = ({ blog }) => {
             <p>
               likes <span>{blog.likes}</span>
             </p>
-            <button onClick={() => console.log("Liked!")}>like</button>
+            <button onClick={like}>like</button>
           </div>
           <p>{blog.author}</p>
         </>
