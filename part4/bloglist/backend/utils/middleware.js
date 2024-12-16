@@ -9,6 +9,10 @@ const errorHandler = (error, _request, response, next) => {
     return response.status(400).json({ error: error.message });
   } else if (error.code === 11000) {
     return response.status(400).json({ error: "username must be unique" });
+  } else if (error.name === "TokenExpiredError") {
+    return response.status(401).json({
+      error: "token expired",
+    });
   }
 
   next(error);

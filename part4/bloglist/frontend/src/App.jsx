@@ -4,10 +4,12 @@ import CreateForm from "./components/CreateForm";
 import blogService from "./services/blogService";
 import loginService from "./services/loginService";
 import Notification from "./components/Notification";
+import LoginForm from "./components/LoginForm";
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
+  const [loginVisible, setLoginVisible] = useState(false);
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
@@ -34,7 +36,7 @@ const App = () => {
           const blogs = await blogService.getAll();
           setBlogs(blogs);
         } catch (error) {
-          console.error("Error fetching blogs:", error);
+          handleLogout();
         }
       }
     };
@@ -72,6 +74,9 @@ const App = () => {
       setUser(user);
       setCredentials({ username: "", password: "" });
     } catch (error) {
+      if (error.status === 500) {
+        setErrorMessage({ type: "error", message: "Server error" });
+      }
       console.log(error);
     }
   };
@@ -114,36 +119,14 @@ const App = () => {
 
   if (user === null) {
     return (
-      <div>
-        {errorMessage && (
-          <Notification
-            type={errorMessage.type}
-            message={errorMessage.message}
-          />
-        )}
-        <h2>Log in to application</h2>
-        <form onSubmit={handleLogin}>
-          <div>
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={credentials.username}
-              onChange={handleCredentialsChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleCredentialsChange}
-            />
-          </div>
-          <button>login</button>
-        </form>
-      </div>
+      <LoginForm
+        handleLogin={handleLogin}
+        credentials={credentials}
+        errorMessage={errorMessage}
+        handleCredentialsChange={handleCredentialsChange}
+        loginVisible={loginVisible}
+        toggleLoginVisible={(val) => setLoginVisible(val)}
+      />
     );
   }
 
