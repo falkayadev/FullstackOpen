@@ -1,4 +1,4 @@
-import Notification from "./Notification";
+import Notification from './Notification'
 
 const Header = ({ errorMessage, title }) => {
   return (
@@ -8,7 +8,7 @@ const Header = ({ errorMessage, title }) => {
       )}
       <h2>{title}</h2>
     </>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

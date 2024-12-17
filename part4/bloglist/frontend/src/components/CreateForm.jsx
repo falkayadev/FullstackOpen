@@ -1,27 +1,27 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 const CreateForm = ({ createBlog }) => {
   const [inputs, setInputs] = useState({
-    title: "",
-    author: "",
-    url: "",
-  });
+    title: '',
+    author: '',
+    url: '',
+  })
   const addBlog = async (event) => {
-    event.preventDefault();
-    createBlog(inputs);
+    event.preventDefault()
+    createBlog(inputs)
     setInputs({
-      title: "",
-      author: "",
-      url: "",
-    });
-  };
+      title: '',
+      author: '',
+      url: '',
+    })
+  }
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value } = event.target
     setInputs((prevInputs) => ({
       ...prevInputs,
       [name]: value,
-    }));
-  };
+    }))
+  }
   return (
     <form onSubmit={addBlog}>
       <div>
@@ -53,6 +53,6 @@ const CreateForm = ({ createBlog }) => {
       </div>
       <button type="submit">create</button>
     </form>
-  );
-};
-export default CreateForm;
+  )
+}
+export default CreateForm

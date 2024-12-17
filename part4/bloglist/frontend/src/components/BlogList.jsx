@@ -1,7 +1,7 @@
-import Blog from "./Blog";
+import Blog from './Blog'
 
 const BlogList = ({ blogs, user, updateBlog, deleteBlog }) => {
-  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
+  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
   return (
     <ul>
       {sortedBlogs.map((blog) => (
@@ -14,7 +14,7 @@ const BlogList = ({ blogs, user, updateBlog, deleteBlog }) => {
         />
       ))}
     </ul>
-  );
-};
+  )
+}
 
-export default BlogList;
+export default BlogList

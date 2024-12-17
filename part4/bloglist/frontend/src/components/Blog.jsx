@@ -1,40 +1,40 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 
 const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [hasRight, setHasRight] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [hasRight, setHasRight] = useState(false)
   const like = () => {
     const updatedBlog = {
       author: blog.author,
       url: blog.url,
       title: blog.title,
       likes: blog.likes + 1,
-    };
-    updateBlog(blog.id, updatedBlog);
-  };
-  const remove = (id) => {
-    const confirmation = window.confirm("Delete blog?");
-    if (confirmation) {
-      deleteBlog(id);
     }
-  };
+    updateBlog(blog.id, updatedBlog)
+  }
+  const remove = (id) => {
+    const confirmation = window.confirm('Delete blog?')
+    if (confirmation) {
+      deleteBlog(id)
+    }
+  }
 
   useEffect(() => {
     if (user.username === blog.user.username) {
-      setHasRight(true);
+      setHasRight(true)
     } else {
-      setHasRight(false);
+      setHasRight(false)
     }
-  }, [user, blog]);
+  }, [user, blog])
 
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
-    border: "solid",
+    border: 'solid',
     borderWidth: 1,
     marginBottom: 5,
-  };
-  const blogRow = { display: "flex", gap: "10px" };
+  }
+  const blogRow = { display: 'flex', gap: '10px' }
   return (
     <li style={blogStyle}>
       <div style={blogRow}>
@@ -43,10 +43,10 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
         </p>
         <button
           onClick={() => {
-            setIsExpanded(!isExpanded);
+            setIsExpanded(!isExpanded)
           }}
         >
-          {isExpanded ? "hide" : "view"}
+          {isExpanded ? 'hide' : 'view'}
         </button>
       </div>
       {isExpanded && (
@@ -63,7 +63,7 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
         </div>
       )}
     </li>
-  );
-};
+  )
+}
 
-export default Blog;
+export default Blog

@@ -1,13 +1,13 @@
 const notify = (type, message, timeout = 5000, errHandler) => {
-  errHandler({ type, message });
+  errHandler({ type, message })
 
   // Store the timeout ID
   const timeoutId = setTimeout(() => {
-    errHandler(null);
-  }, timeout);
+    errHandler(null)
+  }, timeout)
 
   // Return a function to clear the timeout
-  return () => clearTimeout(timeoutId);
-};
+  return () => clearTimeout(timeoutId)
+}
 
-export default { notify };
+export default { notify }
