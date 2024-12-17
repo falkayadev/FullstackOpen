@@ -14,12 +14,13 @@ describe('Blog', () => {
   }
 
   const user = { username: 'testuser', name: 'Test User' }
+  const userActions = userEvent.setup()
 
   const updateBlog = vi.fn()
   const deleteBlog = vi.fn()
 
-  test('renders content without url and likes', () => {
-    const { container } = render(
+  beforeEach(() => {
+    render(
       <Blog
         blog={blog}
         user={user}
@@ -27,7 +28,10 @@ describe('Blog', () => {
         deleteBlog={deleteBlog}
       />
     )
-    const div = container.querySelector('.blog')
+  })
+
+  test('renders content without url and likes', () => {
+    const div = screen.getByText('title').closest('.blog')
     expect(div).toHaveTextContent('title')
     expect(div).toHaveTextContent('author')
     expect(div).not.toHaveTextContent('url')
@@ -35,41 +39,23 @@ describe('Blog', () => {
   })
 
   test('re-renders content with url and likes if expanded', async () => {
-    render(
-      <Blog
-        blog={blog}
-        user={user}
-        deleteBlog={deleteBlog}
-        updateBlog={updateBlog}
-      />
-    )
-
     expect(screen.queryByText('url')).not.toBeInTheDocument()
     expect(screen.queryByText('likes')).not.toBeInTheDocument()
 
     const button = screen.getByText('view')
-    await userEvent.click(button)
+    await userActions.click(button)
 
     expect(screen.getByText('url')).toBeInTheDocument()
     expect(screen.getByText('likes')).toBeInTheDocument()
   })
 
   test('if the like button is clicked twice, the event handler the component received as props is called twice', async () => {
-    render(
-      <Blog
-        blog={blog}
-        user={user}
-        deleteBlog={deleteBlog}
-        updateBlog={updateBlog}
-      />
-    )
-
     const viewButton = screen.getByText('view')
-    await userEvent.click(viewButton)
+    await userActions.click(viewButton)
 
     const likeButton = screen.getByText('like')
-    await userEvent.click(likeButton)
-    await userEvent.click(likeButton)
+    await userActions.click(likeButton)
+    await userActions.click(likeButton)
 
     expect(updateBlog.mock.calls).toHaveLength(2)
   })
