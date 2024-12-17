@@ -53,4 +53,24 @@ describe('Blog', () => {
     expect(screen.getByText('url')).toBeInTheDocument()
     expect(screen.getByText('likes')).toBeInTheDocument()
   })
+
+  test('if the like button is clicked twice, the event handler the component received as props is called twice', async () => {
+    render(
+      <Blog
+        blog={blog}
+        user={user}
+        deleteBlog={deleteBlog}
+        updateBlog={updateBlog}
+      />
+    )
+
+    const viewButton = screen.getByText('view')
+    await userEvent.click(viewButton)
+
+    const likeButton = screen.getByText('like')
+    await userEvent.click(likeButton)
+    await userEvent.click(likeButton)
+
+    expect(updateBlog.mock.calls).toHaveLength(2)
+  })
 })
