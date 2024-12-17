@@ -21,7 +21,7 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
   }
 
   useEffect(() => {
-    if (user.username === blog.user.username) {
+    if (user?.username === blog?.user?.username) {
       setHasRight(true)
     } else {
       setHasRight(false)
@@ -37,10 +37,10 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
   }
   const blogRow = { display: 'flex', gap: '10px' }
   return (
-    <li style={blogStyle}>
+    <li style={blogStyle} className="blog">
       <div style={blogRow}>
         <p>
-          {blog.title} by {blog.author}
+          <span>{blog.title}</span> by <span>{blog.author}</span>
         </p>
         <button
           onClick={() => {
