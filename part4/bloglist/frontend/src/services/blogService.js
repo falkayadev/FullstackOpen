@@ -17,7 +17,6 @@ axios.interceptors.request.use(
 
 const getAll = async () => {
   const response = await axios.get(baseUrl);
-  console.log(response.data);
   return response.data;
 };
 
@@ -30,4 +29,9 @@ const update = async (id, updatedBlog) => {
   const response = await axios.put(`${baseUrl}/${id}`, updatedBlog);
   return response.data;
 };
-export default { getAll, create, update };
+
+const remove = async (id) => {
+  await axios.delete(`${baseUrl}/${id}`);
+};
+
+export default { getAll, create, update, remove };

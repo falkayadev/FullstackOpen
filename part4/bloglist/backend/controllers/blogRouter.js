@@ -12,9 +12,9 @@ blogRouter.get("/", async (request, response, next) => {
     if (!decodedToken.id) {
       return response.status(401).json({ error: "token invalid" });
     }
-    const allPosts = await Blog.find({ user: decodedToken.id }).populate(
-      "user"
-    );
+    const allPosts = await Blog.find({}).populate("user", {
+      username: 1,
+    });
 
     response.json(allPosts);
   } catch (err) {
@@ -24,7 +24,9 @@ blogRouter.get("/", async (request, response, next) => {
 
 blogRouter.get("/:id", async (request, response, next) => {
   try {
-    const result = await Blog.findById(request.params.id);
+    const result = await Blog.findById(request.params.id).populate("user", {
+      username: 1,
+    });
     if (result) {
       response.json(result);
     } else {
@@ -46,7 +48,7 @@ blogRouter.post("/", async (request, response, next) => {
     const blog = new Blog({
       ...body,
       likes: body.likes || 0,
-      user: user._id,
+      user: user,
     });
 
     if (!body?.title || !body?.url) {
@@ -71,11 +73,12 @@ blogRouter.delete("/:id", async (request, response, next) => {
   if (!decodedToken.id) {
     return response.status(401).json({ error: "token invalid" });
   }
+
+  const userid = decodedToken.id;
+  const id = request.params.id;
   try {
-    const userid = decodedToken.id;
-    const id = request.params.id;
     const post = await Blog.findById(id).populate("user");
-    const hasRight = post.toJSON().user.at(0).id === userid;
+    const hasRight = post.toJSON().user.id === userid;
 
     if (!hasRight) {
       return response.status(401).json({ error: "unauthorized" });

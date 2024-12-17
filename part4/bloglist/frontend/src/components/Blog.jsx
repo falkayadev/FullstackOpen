@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasRight, setHasRight] = useState(false);
   const like = () => {
     const updatedBlog = {
       author: blog.author,
@@ -11,6 +12,21 @@ const Blog = ({ blog, updateBlog }) => {
     };
     updateBlog(blog.id, updatedBlog);
   };
+  const remove = (id) => {
+    const confirmation = window.confirm("Delete blog?");
+    if (confirmation) {
+      deleteBlog(id);
+    }
+  };
+
+  useEffect(() => {
+    if (user.username === blog.user.username) {
+      setHasRight(true);
+    } else {
+      setHasRight(false);
+    }
+  }, [user, blog]);
+
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -34,7 +50,7 @@ const Blog = ({ blog, updateBlog }) => {
         </button>
       </div>
       {isExpanded && (
-        <>
+        <div>
           <p>{blog.url}</p>
           <div style={blogRow}>
             <p>
@@ -43,7 +59,8 @@ const Blog = ({ blog, updateBlog }) => {
             <button onClick={like}>like</button>
           </div>
           <p>{blog.author}</p>
-        </>
+          {hasRight && <button onClick={() => remove(blog.id)}>remove</button>}
+        </div>
       )}
     </li>
   );

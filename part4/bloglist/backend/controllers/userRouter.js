@@ -6,13 +6,13 @@ import bcrypt from "bcrypt";
 const saltRound = 10;
 
 userRouter.get("/", async (_request, response) => {
-  const users = await User.find({}).populate("blogs");
+  const users = await User.find({});
   response.json(users);
 });
 
 userRouter.get("/:id", async (request, response, next) => {
   try {
-    const result = await User.findById(request.params.id).populate("blogs");
+    const result = await User.findById(request.params.id);
     if (result) {
       response.json(result);
     } else {

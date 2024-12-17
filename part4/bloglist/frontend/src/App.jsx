@@ -48,6 +48,7 @@ const App = () => {
   const createBlog = async (noteObject) => {
     try {
       const newBlog = await blogService.create(noteObject);
+      console.log(newBlog);
       createFormRef.current.toggleVisibility();
       helpers.notify(
         "success",
@@ -72,6 +73,15 @@ const App = () => {
     }
   };
 
+  const deleteBlog = async (id) => {
+    try {
+      await blogService.remove(id);
+      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== id));
+    } catch (error) {
+      helpers.notify("error", "Blog deletion failed!", 5000, setErrorMessage);
+    }
+  };
+
   const loginFormRef = useRef();
   const createFormRef = useRef();
   const renderLogin = () => (
@@ -93,7 +103,12 @@ const App = () => {
       <Togglable buttonLabel="create a new blog" ref={createFormRef}>
         <CreateForm createBlog={createBlog} />
       </Togglable>
-      <BlogList blogs={blogs} updateBlog={updateBlog} />
+      <BlogList
+        blogs={blogs}
+        user={user}
+        updateBlog={updateBlog}
+        deleteBlog={deleteBlog}
+      />
     </div>
   );
 
