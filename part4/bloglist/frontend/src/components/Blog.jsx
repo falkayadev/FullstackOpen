@@ -55,11 +55,10 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
           <p>{blog.url}</p>
           <div style={blogRow}>
             <p>
-              likes <span>{blog.likes}</span>
+              <span>likes</span> <span>{blog.likes}</span>
             </p>
             <button onClick={like}>like</button>
           </div>
-          <p>{blog.author}</p>
           {hasRight && <button onClick={() => remove(blog.id)}>remove</button>}
         </div>
       )}
