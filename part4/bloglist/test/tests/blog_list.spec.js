@@ -1,5 +1,5 @@
 const { test, describe, expect, beforeEach } = require('@playwright/test')
-import { loginWith } from './helper.js'
+import { loginWith, logoutWith, createBlog } from './helper.js'
 
 describe('Blog list', () => {
   beforeEach(async ({ page, request }) => {
@@ -8,6 +8,14 @@ describe('Blog list', () => {
       data: {
         name: 'Furkan Alkaya',
         username: 'falkaya',
+        password: 'password',
+      },
+    })
+    // another user for testing authorization
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        name: 'Muzaffer Alkaya',
+        username: 'malkaya',
         password: 'password',
       },
     })
@@ -38,20 +46,22 @@ describe('Blog list', () => {
       loginWith(page, 'falkaya', 'password')
     })
     test('a blog can be created', async ({ page }) => {
-      await page.getByRole('button', { name: 'create a new blog' }).click()
-      await page.getByTestId('title').fill('title by playwright')
-      await page.getByTestId('author').fill('author by playwright')
-      await page.getByTestId('url').fill('url by playwright')
-      await page.getByRole('button', { name: 'create' }).click()
+      await createBlog(
+        page,
+        'title by playwright',
+        'author by playwright',
+        'url by playwright'
+      )
       await expect(page.getByText('view')).toBeVisible()
     })
     describe('when a blog has been created', () => {
       beforeEach(async ({ page }) => {
-        await page.getByRole('button', { name: 'create a new blog' }).click()
-        await page.getByTestId('title').fill('title by playwright')
-        await page.getByTestId('author').fill('author by playwright')
-        await page.getByTestId('url').fill('url by playwright')
-        await page.getByRole('button', { name: 'create' }).click()
+        await createBlog(
+          page,
+          'title by playwright',
+          'author by playwright',
+          'url by playwright'
+        )
       })
       test('a blog can be deleted', async ({ page }) => {
         await page.getByRole('button', { name: 'view' }).click()
@@ -70,6 +80,16 @@ describe('Blog list', () => {
         await page.getByRole('button', { name: 'like' }).click()
         await page.waitForTimeout(1000)
         await expect(page.getByText('likes 1')).toBeVisible()
+      })
+      test('only the creator can access the delete button', async ({
+        page,
+      }) => {
+        await logoutWith(page)
+        await loginWith(page, 'malkaya', 'password')
+        await page.getByRole('button', { name: 'view' }).click()
+        await expect(
+          page.getByRole('button', { name: 'remove' })
+        ).not.toBeVisible()
       })
     })
   })
