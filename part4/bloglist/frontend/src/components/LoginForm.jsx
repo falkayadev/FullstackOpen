@@ -25,6 +25,7 @@ const LoginForm = ({ login }) => {
       <div>
         <label htmlFor="username">Username</label>
         <input
+          data-testid="username"
           type="text"
           name="username"
           value={inputs.username}
@@ -34,6 +35,7 @@ const LoginForm = ({ login }) => {
       <div>
         <label htmlFor="password">Password</label>
         <input
+          data-testid="password"
           type="password"
           name="password"
           value={inputs.password}

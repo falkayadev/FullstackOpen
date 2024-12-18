@@ -40,6 +40,11 @@ const App = () => {
     } catch (error) {
       if (error.status === 500) {
         setErrorMessage({ type: 'error', message: 'Server error' })
+      } else if (error.status === 401) {
+        setErrorMessage({
+          type: 'error',
+          message: 'Invalid username or password',
+        })
       }
       console.log(error)
     }

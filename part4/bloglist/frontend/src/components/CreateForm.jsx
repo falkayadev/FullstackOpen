@@ -29,6 +29,7 @@ const CreateForm = ({ createBlog }) => {
         <input
           type="text"
           name="title"
+          data-testid="title"
           value={inputs.title}
           onChange={handleChange}
         />
@@ -38,6 +39,7 @@ const CreateForm = ({ createBlog }) => {
         <input
           type="text"
           name="author"
+          data-testid="author"
           value={inputs.author}
           onChange={handleChange}
         />
@@ -47,6 +49,7 @@ const CreateForm = ({ createBlog }) => {
         <input
           type="text"
           name="url"
+          data-testid="url"
           value={inputs.url}
           onChange={handleChange}
         />
