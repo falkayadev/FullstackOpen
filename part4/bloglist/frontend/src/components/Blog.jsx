@@ -40,7 +40,8 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
     <li style={blogStyle} className="blog">
       <div style={blogRow}>
         <p>
-          <span>{blog.title}</span> by <span>{blog.author}</span>
+          <span data-testid="title-content">{blog.title}</span> by{' '}
+          <span>{blog.author}</span>
         </p>
         <button
           onClick={() => {
