@@ -2,9 +2,11 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 
 import { createStore } from 'redux'
+import { Provider } from 'react-redux' // for forwarding state to components
 import reducer from './reducer'
 
 const store = createStore(reducer)
+console.log(store)
 
 const App = () => {
   const good = () => {
@@ -47,7 +49,11 @@ const App = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'))
 
 const renderApp = () => {
-  root.render(<App />)
+  root.render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  )
 }
 
 renderApp()
