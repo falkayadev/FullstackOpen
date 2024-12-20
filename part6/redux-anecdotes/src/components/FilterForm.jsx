@@ -4,7 +4,8 @@ import { setFilter } from '../reducers/filterReducer'
 const FilterForm = () => {
   const dispatch = useDispatch()
   const handleChange = (e) => {
-    dispatch(setFilter(e.target.value))
+    const inputValue = e.target.value
+    dispatch(setFilter(inputValue))
   }
   return (
     <div>

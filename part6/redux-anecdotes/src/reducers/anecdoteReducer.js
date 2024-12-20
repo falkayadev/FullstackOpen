@@ -1,3 +1,5 @@
+import { createSlice } from '@reduxjs/toolkit'
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -6,9 +8,7 @@ const anecdotesAtStart = [
   'Premature optimization is the root of all evil.',
   'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
 ]
-
 const getId = () => (100000 * Math.random()).toFixed(0)
-
 const asObject = (anecdote) => {
   return {
     content: anecdote,
@@ -16,45 +16,36 @@ const asObject = (anecdote) => {
     votes: 0,
   }
 }
-
 const initialState = anecdotesAtStart.map(asObject)
 
-const reducer = (state = initialState, action) => {
-  console.log('state now: ', state)
-  console.log('action', action)
-  switch (action.type) {
-    case 'VOTE': {
-      const id = action.data.id
+const anecdoteSlice = createSlice({
+  name: 'anecdote',
+  initialState,
+  reducers: {
+    create(state, action) {
+      const content = action.payload
+      state.push({
+        content,
+        id: getId(),
+        votes: 0,
+      })
+    },
+
+    vote(state, action) {
+      const id = action.payload
       const anecdoteToVote = state.find((a) => a.id === id)
-      const votedAnecdote = {
-        ...anecdoteToVote,
-        votes: anecdoteToVote.votes + 1,
-      }
+
+      if (!anecdoteToVote) return state
+
       return state.map((anecdote) =>
-        anecdote.id !== id ? anecdote : votedAnecdote
+        anecdote.id !== id
+          ? anecdote
+          : { ...anecdote, votes: anecdote.votes + 1 }
       )
-    }
-    case 'NEW_ANECDOTE': {
-      const content = action.data.content
-      return [...state, asObject(content)]
-    }
-    default:
-      return state
-  }
-}
+    },
+  },
+})
 
-export const create = (content) => {
-  return {
-    type: 'NEW_ANECDOTE',
-    data: { content },
-  }
-}
+export const { create, vote } = anecdoteSlice.actions
 
-export const vote = (id) => {
-  return {
-    type: 'VOTE',
-    data: { id },
-  }
-}
-
-export default reducer
+export default anecdoteSlice.reducer
