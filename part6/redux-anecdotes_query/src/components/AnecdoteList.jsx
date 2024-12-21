@@ -1,8 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import { getAnecdotes } from '../requests.js'
 
 const AnecdoteList = () => {
-  const queryClient = useQueryClient()
-  const anecdotes = queryClient.getQueryData(['anecdotes'])
+  const { data: anecdotes } = useQuery({
+    queryKey: ['anecdotes'],
+    queryFn: getAnecdotes,
+  })
 
   return (
     <>
