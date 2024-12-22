@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Link,
   useMatch,
+  useNavigate,
 } from 'react-router-dom'
 
 const Menu = () => {
@@ -85,10 +86,18 @@ const Footer = () => (
   </div>
 )
 
+const Notification = ({ notification }) => {
+  if (notification === '') {
+    return null
+  }
+  return <div>{notification}</div>
+}
+
 const CreateNew = (props) => {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -98,6 +107,8 @@ const CreateNew = (props) => {
       info,
       votes: 0,
     })
+    props.notify(`a new anecdote ${content} created`)
+    navigate('/')
   }
 
   return (
@@ -172,11 +183,23 @@ const App = () => {
     setAnecdotes(anecdotes.map((a) => (a.id === id ? voted : a)))
   }
 
+  const timeoutRef = useRef(null)
+  const notify = (message) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setNotification(message)
+    timeoutRef.current = setTimeout(() => {
+      setNotification('')
+    }, 5000)
+  }
+
   return (
     <Router>
       <div>
         <h1>Software anecdotes</h1>
         <Menu />
+        <Notification notification={notification} />
         <Routes>
           <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
           <Route
@@ -187,9 +210,7 @@ const App = () => {
           />
           <Route
             path="/create"
-            element={
-              <CreateNew addNew={addNew} setNotification={setNotification} />
-            }
+            element={<CreateNew addNew={addNew} notify={notify} />}
           />
           <Route
             path="/anecdotes/:id"
