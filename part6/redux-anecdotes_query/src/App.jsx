@@ -3,8 +3,12 @@ import AnecdoteList from './components/AnecdoteList'
 import FilterForm from './components/FilterForm'
 import { useQuery } from '@tanstack/react-query'
 import { getAnecdotes } from './requests.js'
+import NotificationContext from './contexts/NotificationContext.jsx'
+import { useContext } from 'react'
+import Notification from './components/Notification.jsx'
 
 const App = () => {
+  const [notification] = useContext(NotificationContext)
   const result = useQuery({
     queryKey: ['anecdotes'],
     queryFn: getAnecdotes,
@@ -16,6 +20,7 @@ const App = () => {
   return (
     <div>
       <h2>Anecdotes</h2>
+      {notification && <Notification message={notification} />}
       <FilterForm />
       <AnecdoteList />
       <AnecdoteForm />
