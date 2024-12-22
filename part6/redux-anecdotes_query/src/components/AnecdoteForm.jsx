@@ -15,9 +15,12 @@ const AnecdoteForm = () => {
   })
   const handleSubmit = async (event) => {
     event.preventDefault()
-    console.log('submit')
     const content = event.target.content.value
     event.target.content.value = ''
+    if (content.length < 5) {
+      setNotification('anecdote must be at least 5 characters long')
+      return false
+    }
     newAnecdoteMutation.mutate({ content: content, votes: 0 })
   }
   return (
