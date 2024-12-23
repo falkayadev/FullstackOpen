@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useRef, useState } from 'react'
+import { useField } from './hooks'
 import {
   BrowserRouter as Router,
   Routes,
@@ -94,21 +95,28 @@ const Notification = ({ notification }) => {
 }
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0,
     })
-    props.notify(`a new anecdote ${content} created`)
+    props.notify(`a new anecdote "${content.value}" created`)
     navigate('/')
+  }
+
+  const handleClearAll = (event) => {
+    event.preventDefault()
+    author.clear()
+    content.clear()
+    info.clear()
   }
 
   return (
@@ -118,28 +126,32 @@ const CreateNew = (props) => {
         <div>
           content
           <input
+            type={content.type}
             name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            value={content.value}
+            onChange={content.onChange}
           />
         </div>
         <div>
           author
           <input
+            type={author.type}
             name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
+            value={author.value}
+            onChange={author.onChange}
           />
         </div>
         <div>
           url for more info
           <input
+            type={info.type}
             name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
+            value={info.value}
+            onChange={info.onChange}
           />
         </div>
         <button>create</button>
+        <button onClick={handleClearAll}>reset</button>
       </form>
     </div>
   )
