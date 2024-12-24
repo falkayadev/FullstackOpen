@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import blogService from '../services/blogService'
 
-const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
+const Blog = ({ blog, user }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [hasRight, setHasRight] = useState(false)
+
+  const queryClient = useQueryClient()
+
+  const likeMutation = useMutation({
+    mutationFn: ({ id, updatedBlog }) => blogService.update(id, updatedBlog),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    },
+  })
   const like = () => {
     const updatedBlog = {
       author: blog.author,
@@ -11,12 +22,20 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
       title: blog.title,
       likes: blog.likes + 1,
     }
-    updateBlog(blog.id, updatedBlog)
+    likeMutation.mutate({ id: blog.id, updatedBlog })
   }
+
+  const removeMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    },
+  })
+
   const remove = (id) => {
     const confirmation = window.confirm('Delete blog?')
     if (confirmation) {
-      deleteBlog(id)
+      removeMutation.mutate(id)
     }
   }
 
@@ -70,8 +89,6 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  updateBlog: PropTypes.func.isRequired,
-  deleteBlog: PropTypes.func.isRequired,
 }
 
 export default Blog
