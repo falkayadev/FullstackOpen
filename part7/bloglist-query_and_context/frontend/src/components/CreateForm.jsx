@@ -1,20 +1,39 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import useNotify from '../hooks/useNotify'
+import blogService from '../services/blogService'
 
-const CreateForm = ({ createBlog }) => {
+const CreateForm = () => {
   const [inputs, setInputs] = useState({
     title: '',
     author: '',
     url: '',
   })
-  const addBlog = async (event) => {
+
+  const { notify } = useNotify()
+
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: () => {
+      notify(
+        'success',
+        'USER_NAME created a new blog titled NEWBLOG_TITLE',
+        5000
+      )
+      setInputs({ title: '', author: '', url: '' })
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    },
+    onError: () => {
+      notify('error', 'Blog creation failed!', 5000)
+    },
+  })
+
+  const addBlog = (event) => {
     event.preventDefault()
-    createBlog(inputs)
-    setInputs({
-      title: '',
-      author: '',
-      url: '',
-    })
+    mutation.mutate({ ...inputs })
   }
+
   const handleChange = (event) => {
     const { name, value } = event.target
     setInputs((prevInputs) => ({

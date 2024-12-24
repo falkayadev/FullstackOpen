@@ -1,33 +1,27 @@
-import { useState, useEffect } from 'react'
 import blogService from '../services/blogService'
 import useNotify from './useNotify'
-const useBlogs = (user, changeUser, handleLogout) => {
-  const [blogs, setBlogs] = useState([])
+import { useQuery } from '@tanstack/react-query'
+const useBlogs = () => {
   const { notify } = useNotify()
+  const {
+    data: blogs,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+  })
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      if (user) {
-        try {
-          const blogs = await blogService.getAll()
-          setBlogs(blogs)
-        } catch (error) {
-          if (error.status === 401) {
-            localStorage.removeItem('user')
-            changeUser(null)
-            notify('error', 'Your login has expired or is invalid', 5000)
-            handleLogout()
-          } else {
-            console.error('Failed to fetch blogs:', error)
-          }
-        }
-      }
-    }
+  if (isLoading) {
+    return { blogs: [], loading: true }
+  }
 
-    fetchBlogs()
-  }, [user])
+  if (error) {
+    notify('error', 'Error fetching blogs!', 5000)
+    return { blogs: [], error: true }
+  }
 
-  return [blogs, setBlogs]
+  return { blogs }
 }
 
 export default useBlogs
