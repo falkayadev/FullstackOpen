@@ -1,43 +1,24 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
+// compontents
 import CreateForm from './components/CreateForm'
-import blogService from './services/blogService'
-import loginService from './services/loginService'
 import LoginForm from './components/LoginForm'
 import Header from './components/Header'
 import BlogList from './components/BlogList'
-import useUser from './hooks/useUser'
-import useBlogs from './hooks/useBlogs'
 import Togglable from './components/Togglable'
-import { setError } from './reducers/notificationReducer'
+// hooks
+import useUser from './hooks/useUser'
 import useNotify from './hooks/useNotify'
+// services and reducers
+import { logout } from './reducers/userReducer'
+import { useDispatch } from 'react-redux'
 
 const App = () => {
-  const [user, setUser] = useUser()
-  const { notify } = useNotify()
+  const { user } = useUser()
+  const dispatch = useDispatch()
 
   const handleLogout = () => {
     localStorage.removeItem('user')
-    setUser(null)
-  }
-
-  const { blogs } = useBlogs(user, setUser, handleLogout)
-
-  // handle actions
-  const login = async (inputs) => {
-    try {
-      const user = await loginService.login(inputs)
-      loginFormRef.current.toggleVisibility()
-      notify('success', 'Login successful', 5000)
-      window.localStorage.setItem('user', JSON.stringify(user))
-      setUser(user)
-    } catch (error) {
-      if (error.status === 500) {
-        setError('Server error')
-      } else if (error.status === 401) {
-        setError('Invalid username or password')
-      }
-      console.log(error)
-    }
+    dispatch(logout())
   }
 
   const loginFormRef = useRef()
@@ -46,7 +27,7 @@ const App = () => {
     <>
       <Header title="Log in to application" />
       <Togglable buttonLabel="login" ref={loginFormRef}>
-        <LoginForm login={login} />
+        <LoginForm />
       </Togglable>
     </>
   )

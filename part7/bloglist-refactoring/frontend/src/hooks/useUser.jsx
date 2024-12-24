@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { setUser } from '../reducers/userReducer'
 
 const useUser = () => {
-  const [user, setUser] = useState(null)
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.user)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('user')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      dispatch(setUser(user))
     }
-  }, [])
+  }, [dispatch])
 
-  return [user, setUser]
+  return { user }
 }
 
 export default useUser
