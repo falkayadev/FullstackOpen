@@ -7,7 +7,6 @@ import BlogList from './components/BlogList'
 import Togglable from './components/Togglable'
 // hooks
 import useUser from './hooks/useUser'
-import useNotify from './hooks/useNotify'
 // services and reducers
 import { logout } from './reducers/userReducer'
 import { useDispatch } from 'react-redux'
