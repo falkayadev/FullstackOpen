@@ -2,7 +2,7 @@ import Notification from './Notification'
 import { useSelector } from 'react-redux'
 
 const Header = ({ title }) => {
-  const notification = useSelector((state) => state)
+  const notification = useSelector((state) => state.notification)
   return (
     <>
       {notification && (

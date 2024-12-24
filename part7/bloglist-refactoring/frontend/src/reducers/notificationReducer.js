@@ -1,4 +1,4 @@
-const notificationReducer = (state = { type: null, message: null }, action) => {
+const reducer = (state = { type: null, message: null }, action) => {
   switch (action.type) {
     case 'SET_ERROR':
       return action.payload
@@ -17,4 +17,4 @@ export const clearError = () => {
   return { type: 'CLEAR_ERROR' }
 }
 
-export default notificationReducer
+export default reducer

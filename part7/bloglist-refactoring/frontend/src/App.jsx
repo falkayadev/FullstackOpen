@@ -20,7 +20,7 @@ const App = () => {
     setUser(null)
   }
 
-  const [blogs, setBlogs] = useBlogs(user, setUser, handleLogout)
+  const { blogs } = useBlogs(user, setUser, handleLogout)
 
   // handle actions
   const login = async (inputs) => {
@@ -37,22 +37,6 @@ const App = () => {
         setError('Invalid username or password')
       }
       console.log(error)
-    }
-  }
-
-  const createBlog = async (noteObject) => {
-    try {
-      const newBlog = await blogService.create(noteObject)
-      console.log(newBlog)
-      createFormRef.current.toggleVisibility()
-      notify(
-        'success',
-        `${user.name} created a new blog titled ${newBlog.title}`,
-        5000
-      )
-      setBlogs((prevBlogs) => prevBlogs.concat(newBlog))
-    } catch (error) {
-      notify('error', 'Blog creation failed!', 5000)
     }
   }
 
@@ -95,14 +79,9 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </Togglable>
       <Togglable buttonLabel="create a new blog" ref={createFormRef}>
-        <CreateForm createBlog={createBlog} />
+        <CreateForm user={user} />
       </Togglable>
-      <BlogList
-        blogs={blogs}
-        user={user}
-        updateBlog={updateBlog}
-        deleteBlog={deleteBlog}
-      />
+      <BlogList user={user} updateBlog={updateBlog} deleteBlog={deleteBlog} />
     </div>
   )
 
