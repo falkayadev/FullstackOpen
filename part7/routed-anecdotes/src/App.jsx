@@ -5,43 +5,146 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
+  Link as RouterLink,
   useMatch,
   useNavigate,
+  useLocation,
 } from 'react-router-dom'
+import {
+  Box,
+  Button,
+  Stack,
+  Typography,
+  TableContainer,
+  TableBody,
+  Table,
+  TableRow,
+  TableCell,
+  Container,
+  Link,
+  Breadcrumbs,
+  TextField,
+} from '@mui/material'
 
-const Menu = () => {
-  const padding = {
-    paddingRight: 5,
-  }
+const Header = () => {
   return (
-    <div>
-      <Link to="/" style={padding}>
-        anecdotes
-      </Link>
-      <Link to="/create" style={padding}>
-        create new
-      </Link>
-      <Link to="/about" style={padding}>
-        about
-      </Link>
-    </div>
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+      sx={{ mb: 6 }}
+    >
+      <Typography variant="h4" component="h1">
+        AnecdotesApp
+      </Typography>
+      <Stack direction="row" spacing={2}>
+        <Button
+          component={RouterLink}
+          to="/"
+          variant={useMatch('/') ? 'contained' : 'outlined'}
+        >
+          Home
+        </Button>
+        <Button
+          component={RouterLink}
+          to="/create"
+          variant={useMatch('/create') ? 'contained' : 'outlined'}
+        >
+          Create new
+        </Button>
+        <Button
+          component={RouterLink}
+          to="/about"
+          variant={useMatch('/about') ? 'contained' : 'outlined'}
+        >
+          About
+        </Button>
+      </Stack>
+    </Stack>
   )
 }
 
 const AnecdoteList = ({ anecdotes }) => (
-  <div>
-    <h2>Anecdotes</h2>
-    <ul>
-      {anecdotes.map((anecdote) => (
-        <li key={anecdote.id}>
-          <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link>
-        </li>
-      ))}
-    </ul>
-  </div>
+  <Box>
+    <TableContainer>
+      <Table>
+        <TableBody>
+          {anecdotes.map((anecdote) => (
+            <TableRow key={anecdote.id}>
+              <TableCell>
+                <Link
+                  component={RouterLink}
+                  to={`/anecdotes/${anecdote.id}`}
+                  underline="none"
+                >
+                  {anecdote.content}
+                </Link>
+              </TableCell>
+              <TableCell>{anecdote.author}</TableCell>
+              <TableCell>{anecdote.votes}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Box>
 )
 
+const DynamicBreadcrumbs = () => {
+  const location = useLocation()
+  const pathnames = location.pathname.split('/').filter((x) => x)
+  console.log(pathnames)
+
+  return (
+    <Breadcrumbs aria-label="breadcrumb">
+      <Link
+        component={RouterLink}
+        to="/"
+        underline="none"
+        color={location.pathname === '/' ? '#333' : '#999'}
+        fontSize={'0.8rem'}
+      >
+        Home
+      </Link>
+      {pathnames.map((value, index) => {
+        const to = `/${pathnames.slice(0, index + 1).join('/')}`
+        const isLast = index === pathnames.length - 1
+        const label =
+          value === 'create'
+            ? 'Create New'
+            : value === 'about'
+              ? 'About'
+              : value === 'anecdotes'
+                ? 'Anecdotes'
+                : value
+
+        return isLast ? (
+          <Link
+            key={to}
+            component={RouterLink}
+            to={to}
+            underline="none"
+            color={isLast ? '#333' : '#999'}
+            fontSize={'0.8rem'}
+          >
+            {label}
+          </Link>
+        ) : (
+          <Link
+            key={to}
+            component={RouterLink}
+            to={to}
+            underline="none"
+            color={isLast ? '#333' : '#999'}
+            fontSize={'0.8rem'}
+          >
+            {label}
+          </Link>
+        )
+      })}
+    </Breadcrumbs>
+  )
+}
 const Anecdote = ({ anecdoteById }) => {
   const match = useMatch('/anecdotes/:id')
   const anecdote = match ? anecdoteById(parseInt(match.params.id)) : null
@@ -55,36 +158,52 @@ const Anecdote = ({ anecdoteById }) => {
 }
 
 const About = () => (
-  <div>
-    <h2>About anecdote app</h2>
-    <p>According to Wikipedia:</p>
+  <Stack spacing={2}>
+    <Typography variant="h5">About</Typography>
+    <Typography variant="body1">According to Wikipedia:</Typography>
 
-    <em>
-      An anecdote is a brief, revealing account of an individual person or an
-      incident. Occasionally humorous, anecdotes differ from jokes because their
-      primary purpose is not simply to provoke laughter but to reveal a truth
-      more general than the brief tale itself, such as to characterize a person
-      by delineating a specific quirk or trait, to communicate an abstract idea
-      about a person, place, or thing through the concrete details of a short
-      narrative. An anecdote is "a story with a point."
-    </em>
+    <Box bgcolor={'#f5f5f5'} padding={5} borderRadius={1}>
+      <Typography variant="body1" component="blockquote">
+        &ldquo;An anecdote is a brief, revealing account of an individual person
+        or an incident. Occasionally humorous, anecdotes differ from jokes
+        because their primary purpose is not simply to provoke laughter but to
+        reveal a truth more general than the brief tale itself, such as to
+        characterize a person by delineating a specific quirk or trait, to
+        communicate an abstract idea about a person, place, or thing through the
+        concrete details of a short narrative. An anecdote is "a story with a
+        point."&rdquo;
+      </Typography>
+    </Box>
 
-    <p>
+    <Typography variant="body2">
       Software engineering is full of excellent anecdotes, at this app you can
       find the best and add more.
-    </p>
-  </div>
+    </Typography>
+  </Stack>
 )
 
 const Footer = () => (
-  <div>
-    Anecdote app for <a href="https://fullstackopen.com/">Full Stack Open</a>.
-    See{' '}
-    <a href="https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js">
-      https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js
-    </a>{' '}
-    for the source code.
-  </div>
+  <Stack
+    bgcolor="primary.main"
+    color={'#fff'}
+    direction={'row'}
+    justifyContent={'center'}
+    alignItems={'center'}
+    p={2}
+  >
+    Anecdote app for&nbsp;
+    <Link color="#eaeaea" href="https://fullstackopen.com/">
+      Full Stack Open
+    </Link>
+    . Click&nbsp;
+    <Link
+      color="#eaeaea"
+      href="https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js"
+    >
+      this
+    </Link>
+    &nbsp;for source code!
+  </Stack>
 )
 
 const Notification = ({ notification }) => {
@@ -120,40 +239,60 @@ const CreateNew = (props) => {
   }
 
   return (
-    <div>
-      <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          content
-          <input
+    <Box>
+      <Typography variant="h5" mb={4}>
+        Create a New Anecdote!
+      </Typography>
+      <Stack component="form" onSubmit={handleSubmit} spacing={2}>
+        <Box>
+          <TextField
+            size="small"
+            fullWidth
+            label="content"
             type={content.type}
             name="content"
             value={content.value}
             onChange={content.onChange}
           />
-        </div>
-        <div>
-          author
-          <input
+        </Box>
+        <Box>
+          <TextField
+            size="small"
+            fullWidth
             type={author.type}
+            label="author"
             name="author"
             value={author.value}
             onChange={author.onChange}
           />
-        </div>
-        <div>
-          url for more info
-          <input
+        </Box>
+        <Box>
+          <TextField
+            size="small"
+            fullWidth
             type={info.type}
+            label="url"
             name="info"
             value={info.value}
             onChange={info.onChange}
           />
-        </div>
-        <button>create</button>
-        <button onClick={handleClearAll}>reset</button>
-      </form>
-    </div>
+        </Box>
+        <Stack
+          direction={'row'}
+          width={'100%'}
+          alignItems={'center'}
+          justifyContent={'space-between'}
+          spacing={6}
+        >
+          <Button variant="contained" fullWidth>
+            create
+          </Button>
+          <Button variant="outlined" onClick={handleClearAll} fullWidth>
+            reset
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   )
 }
 
@@ -208,29 +347,35 @@ const App = () => {
 
   return (
     <Router>
-      <div>
-        <h1>Software anecdotes</h1>
-        <Menu />
-        <Notification notification={notification} />
-        <Routes>
-          <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
-          <Route
-            path="/about"
-            element={
-              <About anecdotes={anecdotes} notification={notification} />
-            }
-          />
-          <Route
-            path="/create"
-            element={<CreateNew addNew={addNew} notify={notify} />}
-          />
-          <Route
-            path="/anecdotes/:id"
-            element={<Anecdote anecdoteById={anecdoteById} />}
-          />
-        </Routes>
+      <Stack minHeight="100vh">
+        <Container maxWidth="md" sx={{ py: 4, flexGrow: 1 }}>
+          <Header />
+          <DynamicBreadcrumbs />
+          <Notification notification={notification} />
+          <Routes>
+            <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
+            <Route
+              path="/anecdotes"
+              element={<AnecdoteList anecdotes={anecdotes} />}
+            />
+            <Route
+              path="/about"
+              element={
+                <About anecdotes={anecdotes} notification={notification} />
+              }
+            />
+            <Route
+              path="/create"
+              element={<CreateNew addNew={addNew} notify={notify} />}
+            />
+            <Route
+              path="/anecdotes/:id"
+              element={<Anecdote anecdoteById={anecdoteById} />}
+            />
+          </Routes>
+        </Container>
         <Footer />
-      </div>
+      </Stack>
     </Router>
   )
 }
