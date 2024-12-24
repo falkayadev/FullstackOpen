@@ -1,17 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useUserDispatch } from '../contexts/UserContext'
+import { useUserValue } from '../contexts/UserContext'
 
 const useUser = () => {
-  const [user, setUser] = useState(null)
+  const dispatch = useUserDispatch()
+  const user = useUserValue()
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('user')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      console.log(user)
+      dispatch({ type: 'SET_USER', payload: user })
     }
-  }, [])
-
-  return [user, setUser]
+  }, [dispatch])
+  return { user }
 }
 
 export default useUser

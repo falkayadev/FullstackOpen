@@ -1,15 +1,43 @@
 import { useState } from 'react'
+import loginService from '../services/loginService'
+import useNotify from '../hooks/useNotify'
+import { useUserDispatch } from '../contexts/UserContext'
+import { useNotificationDispatch } from '../contexts/NotificationContext'
 
-const LoginForm = ({ login }) => {
+const LoginForm = () => {
   const [inputs, setInputs] = useState({
     username: '',
     password: '',
   })
+  const { notify } = useNotify()
+  const userDispatch = useUserDispatch()
+  const notificationDispatch = useNotificationDispatch()
 
-  const handleLogin = (event) => {
+  // handle actions
+  const login = async (event) => {
     event.preventDefault()
-    login(inputs)
-    setInputs({ username: '', password: '' })
+    try {
+      const user = await loginService.login(inputs)
+      notify('success', 'Login successful', 5000)
+      window.localStorage.setItem('user', JSON.stringify(user))
+      userDispatch({ type: 'SET_USER', payload: user })
+      setInputs({ username: '', password: '' })
+    } catch (error) {
+      if (error.status === 500) {
+        notificationDispatch({
+          type: 'SET_NOTIFICATION',
+          payload: { type: 'error', message: 'Server error' },
+        })
+      } else if (error.status === 401) {
+        notificationDispatch({
+          type: 'SET_NOTIFICATION',
+          payload: {
+            type: 'error',
+            message: 'Invalid username or password',
+          },
+        })
+      }
+    }
   }
 
   // handle form input changes
@@ -21,7 +49,7 @@ const LoginForm = ({ login }) => {
     }))
   }
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={login}>
       <div>
         <label htmlFor="username">Username</label>
         <input

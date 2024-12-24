@@ -1,7 +1,8 @@
 import blogService from '../services/blogService'
 import useNotify from './useNotify'
 import { useQuery } from '@tanstack/react-query'
-const useBlogs = () => {
+
+const useBlogs = (user) => {
   const { notify } = useNotify()
   const {
     data: blogs,
@@ -10,6 +11,7 @@ const useBlogs = () => {
   } = useQuery({
     queryKey: ['blogs'],
     queryFn: blogService.getAll,
+    enabled: !!user,
   })
 
   if (isLoading) {
