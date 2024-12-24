@@ -22,6 +22,20 @@ export const createBlog = (blog) => {
   }
 }
 
+export const updateBlog = (updatedBlog) => {
+  return {
+    type: 'UPDATE',
+    payload: updatedBlog,
+  }
+}
+
+export const deleteBlog = (id) => {
+  return {
+    type: 'DELETE',
+    payload: { id },
+  }
+}
+
 export const setBlogs = (blogs) => {
   return {
     type: 'SET',

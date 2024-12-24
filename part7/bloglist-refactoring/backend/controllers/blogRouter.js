@@ -107,12 +107,10 @@ blogRouter.put('/:id', async (request, response, next) => {
       return response.status(404).json({ error: 'Blog post not found' })
     }
 
-    await Blog.findByIdAndUpdate(id, body, {
+    const updatedPost = await Blog.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
-    })
-
-    const updatedPost = await Blog.findById(id).populate('user', {
+    }).populate('user', {
       username: 1,
     })
 

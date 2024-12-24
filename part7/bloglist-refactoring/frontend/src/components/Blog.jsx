@@ -1,22 +1,40 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { deleteBlog, updateBlog } from '../reducers/blogReducer'
+import { useDispatch } from 'react-redux'
+import blogService from '../services/blogService'
+import useNotify from '../hooks/useNotify'
 
-const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
+const Blog = ({ blog, user }) => {
+  const dispatch = useDispatch()
   const [isExpanded, setIsExpanded] = useState(false)
   const [hasRight, setHasRight] = useState(false)
-  const like = () => {
-    const updatedBlog = {
+  const { notify } = useNotify()
+
+  const like = async () => {
+    const votedBlog = {
+      title: blog.title,
       author: blog.author,
       url: blog.url,
-      title: blog.title,
       likes: blog.likes + 1,
     }
-    updateBlog(blog.id, updatedBlog)
+    try {
+      const updatedBlog = await blogService.update(blog.id, votedBlog)
+      dispatch(updateBlog(updatedBlog))
+    } catch (error) {
+      notify('error', 'Blog update failed!', 5000)
+    }
   }
-  const remove = (id) => {
+
+  const remove = async () => {
     const confirmation = window.confirm('Delete blog?')
     if (confirmation) {
-      deleteBlog(id)
+      try {
+        await blogService.remove(blog.id)
+        dispatch(deleteBlog(blog.id))
+      } catch (error) {
+        notify('error', 'Blog deletion failed!', 5000)
+      }
     }
   }
 
@@ -61,7 +79,7 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
             </p>
             <button onClick={like}>like</button>
           </div>
-          {hasRight && <button onClick={() => remove(blog.id)}>remove</button>}
+          {hasRight && <button onClick={remove}>remove</button>}
         </div>
       )}
     </li>
@@ -71,8 +89,6 @@ const Blog = ({ blog, user, updateBlog, deleteBlog }) => {
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  updateBlog: PropTypes.func.isRequired,
-  deleteBlog: PropTypes.func.isRequired,
 }
 
 export default Blog
