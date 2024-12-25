@@ -74,21 +74,30 @@ blogRouter.delete('/:id', async (request, response, next) => {
     return response.status(401).json({ error: 'token invalid' })
   }
 
-  const userid = decodedToken.id
-  const id = request.params.id
-  try {
-    const post = await Blog.findById(id).populate('user')
-    const hasRight = post.toJSON().user.id === userid
+  const userId = decodedToken.id
+  const blogId = request.params.id
 
+  try {
+    const post = await Blog.findById(blogId).populate('user')
+    if (!post) {
+      return response.status(404).json({ error: 'blog not found' })
+    }
+
+    const hasRight = post.user.id === userId
     if (!hasRight) {
       return response.status(401).json({ error: 'unauthorized' })
     }
-    try {
-      await Blog.findByIdAndDelete(id)
-      response.status(204).end()
-    } catch (err) {
-      response.status(404).end()
+
+    const user = await User.findById(post.user.id)
+    if (user) {
+      user.blogs = user.blogs.filter(
+        (id) => id.toString() !== blogId.toString()
+      )
+      await user.save()
     }
+
+    await Blog.findByIdAndDelete(blogId)
+    response.status(204).end()
   } catch (err) {
     next(err)
   }
